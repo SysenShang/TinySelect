@@ -1,0 +1,37 @@
+{
+  "name": "tinyselect",
+  "version": "0.1.0",
+  "description": "一个简单的下拉选择框",
+  "keywords": [
+    "select",
+    "combo",
+    "dropdown"
+  ],
+  "homepage": "http://git.oschina.net/hyjiacan/TinySelect",
+  "example": "http://hyjiacan.oschina.io/tinyselect",
+  "bugs": {
+    "url": "http://git.oschina.net/hyjiacan/TinySelect/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://git.oschina.net/hyjiacan/TinySelect.git"
+  },
+  "license": "MIT",
+  "author": "hyjiacan <dev@hyjiacan.com> (http://www.hyjiacan.com)",
+  "main": "dist/tinyselect.all.js",
+  "dependencies": {
+    "jquery": "^1.11.0"
+  },
+  "devDependencies": {
+    "babel-preset-es2015": "^6.18.0",
+    "grunt": "^1.0.1",
+    "grunt-babel": "^6.0.0",
+    "grunt-cli": "^1.2.0",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-jshint": "^1.1.0",
+    "grunt-contrib-less": "^1.4.0",
+    "grunt-contrib-uglify": "^2.0.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-jsdoc": "^2.1.0"
+  }
+}

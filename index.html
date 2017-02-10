@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="lib/jquery-1.10.2.min.js" type="text/javascript" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" href="lib/strapdown/strapdown.css" />
+    <link rel="stylesheet" type="text/css" href="lib/strapdown/themes/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="lib/strapdown/themes/bootstrap-responsive.min.css" />
+
+    <style>
+        #source {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <xmp id="source"></xmp>
+    <script type="text/javascript">
+        $(function() {
+            $.get('README.md', function(data) {
+                $('#source').html(data);
+            }).then(function() {
+                $.getScript('lib/strapdown/strapdown.js');
+            });
+        });
+    </script>
+</body>
+
+</html>

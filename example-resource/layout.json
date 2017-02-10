@@ -1,0 +1,49 @@
+[{
+        "title": "单选",
+        "file": "single.html"
+    },
+    {
+        "title": "多选",
+        "file": "multiple.html"
+    },
+    {
+        "title": "网格式布局",
+        "file": "grid.html"
+    },
+    {
+        "title": "没有下拉指示器的单选",
+        "file": "single-without-dropdown.html"
+    }, {
+        "title": "单选设置初始值",
+        "file": "single-value.html"
+    },
+    {
+        "title": "多选设置初始值",
+        "file": "multiple-value.html"
+    }, {
+        "title": "单选只读模式",
+        "file": "single-readonly.html"
+    },
+    {
+        "title": "多选只读模式",
+        "file": "multiple-readonly.html"
+    }, {
+        "title": "单选列表模式",
+        "file": "single-list.html"
+    },
+    {
+        "title": "多选列表模式",
+        "file": "multiple-list.html"
+    },{
+        "title": "纯单选列表模式",
+        "file": "single-list-clean.html"
+    },
+    {
+        "title": "动态加载数据",
+        "file": "dynamic-load-data.html"
+    },
+    {
+        "title": "动态设置选中值",
+        "file": "dynamic-set-value.html"
+    }
+]

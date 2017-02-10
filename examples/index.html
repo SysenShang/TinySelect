@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>示例 - TinySelect 一个灵活的下拉组件</title>
+    <script src="../lib/jquery-1.10.2.min.js"></script>
+    <script src="../dist/tinyselect.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../dist/tinyselect.css" />
+    <link rel="stylesheet/less" type="text/css" href="../example-resource/example.less" />
+    <script src="../lib/less.min.js"></script>
+</head>
+
+<body>
+    <div class="example-index-layout">
+        <div class="nav">
+            <div id="example-list"></div>
+        </div>
+        <div class="content">
+            <div id="title"></div>
+            <iframe src="" name="iframe"></iframe>
+        </div>
+    </div>
+    <script>
+        $(function() {
+            var examples = TinySelect('#example-list', {
+                aslist: true,
+                item: {
+                    textField: 'title',
+                    valueField: 'file',
+                    visible: 0,
+                    style: {
+                        lineHeight: '36px',
+                        cursor: 'pointer'
+                    }
+                },
+                header: {
+                    render: function(header) {
+                        this.append($('<h2>')
+                                .append('TinySelect 示例')
+                                .append($('<small>').append('<a href="https://git.oschina.net/hyjiacan/TinySelect">项目</a>')))
+                            .append($('<div class="tips">Tips:<br/>其实左侧这个导航就是TinySelect的列表模式</div>'));
+                    },
+                    filter: {
+                        style: {
+                            display: 'none'
+                        }
+                    }
+                },
+                footer: {
+                    totalTpl: '共%s个示例'
+                },
+                box: {
+                    empty: '正在加载...'
+                }
+            });
+
+
+            examples.on('select', function(e) {
+                $('#title').text(e.data.title);
+                $('iframe').attr('src', e.data.file);
+                window.location.hash = e.data.file;
+            });
+
+            $.getJSON('../example-resource/layout.json').then(function(items) {
+                examples.load(items).value(window.location.hash.replace('#', '') || 'single.html', true);
+            });
+        });
+    </script>
+</body>
+
+</html>

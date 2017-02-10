@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <script src="../lib/jquery-1.10.2.min.js"></script>
+    <script src="../dist/tinyselect.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../dist/tinyselect.css" />
+    <link rel="stylesheet/less" type="text/css" href="../example-resource/example.less" />
+    <link rel="stylesheet" type="text/css" href="../lib/codemirror/codemirror.css" />
+    <script src="../lib/codemirror/codemirror.js"></script>
+    <script src="../lib/codemirror/mode/javascript/javascript.js"></script>
+    <script src="../example-resource/source.js"></script>
+</head>
+
+<body>
+    <div class="tinyselectcontext-container">
+        <div id="tinyselectcontext" class="multiple"></div>
+    </div>
+    <script>
+        $.getJSON('../example-resource/data.json').then(function(data) {
+            TinySelect('#tinyselectcontext', {
+                item: {
+                    data: data
+                },
+                result: {
+                    multi: true
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

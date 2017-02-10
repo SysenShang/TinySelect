@@ -1,0 +1,125 @@
+dl {
+  width: 600px;
+  margin: 0 auto;
+}
+dl dt h3 {
+  border-bottom: 3px solid #CCC;
+}
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+.example-index-layout {
+  width: 1080px;
+  margin: 0 auto;
+  height: 100%;
+  position: relative;
+  box-shadow: rgba(0, 0, 0, 0.2) 0 1px 0 1px;
+}
+.example-index-layout .nav {
+  width: 280px;
+  float: left;
+  height: 100%;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  box-sizing: border-box;
+}
+.example-index-layout .nav #example-list {
+  height: 100%;
+}
+.example-index-layout .nav .tinyselect-container {
+  border: none;
+}
+.example-index-layout .nav .tinyselect-container .tinyselect-item {
+  border-bottom: 1px solid #EEE;
+  box-shadow: rgba(0, 0, 0, 0.1) 0 0 1px 0;
+  color: #666;
+}
+.example-index-layout .nav .tinyselect-container .tinyselect-item:hover {
+  border: #EEE;
+  background-color: #EFEFEF;
+}
+.example-index-layout .nav .tinyselect-container .tinyselect-item-selected {
+  font-weight: bolder;
+}
+.example-index-layout .nav .tinyselect-container .tinyselect-header {
+  border-top: 1px solid transparent;
+}
+.example-index-layout .nav .tinyselect-container .tinyselect-header h2 a {
+  font-size: 14px;
+  text-decoration: none;
+  color: #eee;
+  text-shadow: rgba(255, 255, 255, 0.2) 1px 1px;
+  margin-left: 5px;
+  background-color: #008DD7;
+  border-radius: 3px;
+  padding: 0 6px;
+  font-weight: normal;
+  line-height: 28px;
+  height: 28px;
+  display: inline-block;
+  vertical-align: 3px;
+}
+.example-index-layout .nav .tinyselect-container .tinyselect-header h2 a:hover {
+  font-weight: bold;
+}
+.example-index-layout .content {
+  margin-left: 282px;
+  height: 100%;
+  overflow: hidden;
+  padding-top: 40px;
+  box-sizing: border-box;
+  background-color: #F4F6F7;
+}
+.example-index-layout .content #title {
+  position: absolute;
+  top: 0;
+  left: 282px;
+  height: 40px;
+  line-height: 40px;
+  font-size: large;
+  font-weight: bold;
+  text-shadow: rgba(0, 0, 0, 0.2) 2px 2px;
+  padding: 0 10px;
+  color: #666;
+}
+.example-index-layout .content iframe {
+  margin: 0;
+  padding: 0;
+  border: none;
+  width: 100%;
+  height: 100%;
+  background-color: #FFF;
+}
+.tinyselectcontext-container {
+  margin: 0 auto;
+  width: 480px;
+  padding: 20px 0;
+  box-sizing: border-box;
+}
+.tinyselectcontext-container #tinyselectcontext {
+  height: 32px;
+  line-height: 32px;
+  border: 1px solid #a8d4e8;
+}
+.tinyselectcontext-container #tinyselectcontext.multiple {
+  height: 100px;
+}
+.sourceheader {
+  margin-top: 10px;
+  height: 32px;
+  line-height: 32px;
+  font-size: 14px;
+  text-shadow: rgba(0, 0, 0, 0.2) 2px 2px;
+  padding: 0 10px;
+  background-color: #F4F6F7;
+  color: #666;
+}
+.tips {
+  font-size: small;
+  color: #888;
+  line-height: 16px;
+}
