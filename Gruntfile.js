@@ -55,9 +55,11 @@ module.exports = function(grunt) {
             }
         },
         less: {
+            options:{
+                compress: true
+            },
             compile: {
                 files: {
-                    'example-resource/example.css': 'example-resource/example.less',
                     'dist/tinyselect.css': 'src/tinyselect.less'
                 }
             }

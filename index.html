@@ -13,18 +13,60 @@
         #source {
             display: none;
         }
+        
+        #tags {
+            display: none;
+        }
+        
+        .navbar .navbar-inner .container h1,
+        .navbar .navbar-inner .container p,
+        .navbar .navbar-inner .container a {
+            display: inline-block;
+            margin-right: 20px;
+        }
+        
+        .navbar .navbar-inner .container a {
+            height: 24px;
+            line-height: 24px;
+        }
+        
+        .navbar .navbar-inner .container a img {
+            margin: -2px 0 0 0;
+        }
     </style>
 </head>
 
 <body>
+    <div id="tags">
+        <script src='https://git.oschina.net/hyjiacan/TinySelect/star_widget_preview'></script>
+        <script src='https://git.oschina.net/hyjiacan/TinySelect/fork_widget_preview'></script>
+    </div>
+
     <xmp id="source"></xmp>
     <script type="text/javascript">
-        $(function() {
-            $.get('README.md', function(data) {
+        $(function () {
+            $.get('README.md', function (data) {
                 $('#source').html(data);
-            }).then(function() {
+            }).then(function () {
                 $.getScript('lib/strapdown/strapdown.js');
+            }).then(function () {
+                var handler = setInterval(function () {
+                    var header = $('.navbar .navbar-inner .container');
+                    if (header.length == 0) {
+                        return;
+                    }
+                    clearInterval(handler);
+                    renderHeader(header);
+                }, 200);
             });
+
+            function renderHeader(header) {
+                header
+                    .append($('h1:first'))
+                    .append($('#osc_star'))
+                    .append($('#osc_fork'))
+                    .append($('<a>').attr('href', 'examples').text('各种示例'));
+            }
         });
     </script>
 </body>

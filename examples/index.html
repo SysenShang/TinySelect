@@ -22,7 +22,7 @@
         </div>
     </div>
     <script>
-        $(function() {
+        $(function () {
             var examples = TinySelect('#example-list', {
                 aslist: true,
                 item: {
@@ -35,10 +35,10 @@
                     }
                 },
                 header: {
-                    render: function(header) {
+                    render: function (header) {
                         this.append($('<h2>')
-                                .append('TinySelect 示例')
-                                .append($('<small>').append('<a href="https://git.oschina.net/hyjiacan/TinySelect">项目</a>')))
+                            .append('TinySelect 示例')
+                            .append($('<small>').append('<a href="https://git.oschina.net/hyjiacan/TinySelect">项目主页</a>')))
                             .append($('<div class="tips">Tips:<br/>其实左侧这个导航就是TinySelect的列表模式</div>'));
                     },
                     filter: {
@@ -56,13 +56,13 @@
             });
 
 
-            examples.on('select', function(e) {
+            examples.on('select', function (e) {
                 $('#title').text(e.data.title);
                 $('iframe').attr('src', e.data.file);
                 window.location.hash = e.data.file;
             });
 
-            $.getJSON('../example-resource/layout.json').then(function(items) {
+            $.getJSON('../example-resource/layout.json').then(function (items) {
                 examples.load(items).value(window.location.hash.replace('#', '') || 'single.html', true);
             });
         });
