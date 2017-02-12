@@ -31,13 +31,13 @@ TinySelect 是一个以灵活为目标的WEB下拉组件。旨在通过灵活的
 将`dist`目录复制到你的项目中，然后在页面上添加引用
 
 ```html
-&lt;link rel="stylesheet" type="text/css" href="dist/tinyselect.css" />
-&lt;script type="text/javascript" src="dist/tinyselect.min.js" />
+<link rel="stylesheet" type="text/css" href="dist/tinyselect.css" />
+<script type="text/javascript" src="dist/tinyselect.min.js" />
 ```
 
 HTML结构
 ```html
-&lt;div id="tinyselectcontext"></div>
+<div id="tinyselectcontext"></div>
 ```
 
 数据
