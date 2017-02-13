@@ -34,7 +34,7 @@
     {
         "title": "多选列表模式",
         "file": "multiple-list.html"
-    },{
+    }, {
         "title": "纯单选列表模式",
         "file": "single-list-clean.html"
     },
@@ -45,5 +45,9 @@
     {
         "title": "动态设置选中值",
         "file": "dynamic-set-value.html"
+    },
+    {
+        "title": "下拉项添加图标",
+        "file": "single-icon.html"
     }
 ]
