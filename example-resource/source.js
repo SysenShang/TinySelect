@@ -1,7 +1,7 @@
 $(function() {
     function autoIndent(html) {
         var indent;
-        return $.each(html.split('\n'), function(i, line) {
+        return $.map(html.split('\n'), function(line) {
             if (/^\s*$/.test(line)) {
                 return line;
             }
