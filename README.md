@@ -32,7 +32,7 @@ TinySelect 是一个以灵活为目标的WEB下拉组件。旨在通过灵活的
 
 ```html
 <link rel="stylesheet" type="text/css" href="dist/tinyselect.css" />
-<script type="text/javascript" src="dist/tinyselect.min.js" />
+<script type="text/javascript" src="dist/tinyselect.js" />
 ```
 
 HTML结构

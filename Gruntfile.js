@@ -55,7 +55,7 @@ module.exports = function(grunt) {
             }
         },
         less: {
-            options:{
+            options: {
                 compress: true
             },
             compile: {
@@ -71,7 +71,7 @@ module.exports = function(grunt) {
             },
             dist: {
                 files: {
-                    'dist/<%= pkg.name %>.min.js': ['src/<%= pkg.name %>.js']
+                    'dist/<%= pkg.name %>.js': ['src/<%= pkg.name %>.js']
                 }
             }
         },

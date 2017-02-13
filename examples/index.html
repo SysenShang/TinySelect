@@ -5,24 +5,76 @@
     <meta charset="UTF-8">
     <title>示例 - TinySelect 一个灵活的下拉组件</title>
     <script src="../lib/jquery-1.10.2.min.js"></script>
-    <script src="../dist/tinyselect.min.js"></script>
+    <script src="../dist/tinyselect.js"></script>
     <link rel="stylesheet" type="text/css" href="../dist/tinyselect.css" />
     <link rel="stylesheet/less" type="text/css" href="../example-resource/example.less" />
+    <link rel="stylesheet" href="../lib/bootstrap.min.css" />
     <script src="../lib/less.min.js"></script>
+    <style>
+        html,
+        body {
+            height: 100%;
+            box-sizing: border-box;
+        }
+        
+        body {
+            padding-top: 80px;
+        }
+        
+        .container,
+        .row,
+        .col-md-4,
+        .col-md-8 {
+            height: 100%;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="example-index-layout">
-        <div class="nav">
-            <div id="example-list"></div>
+    <div class="navbar navbar-default navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="container">
+                <div id="headline" class="brand"></div>
+                <div id="header">
+                    <h1>TinySelect</h1>
+                    <div class="items">
+                        <small>一个灵活的WEB下拉组件</small>
+                        <div class="top-nav-item">
+                            <a href="https://git.oschina.net/hyjiacan/TinySelect">项目主页</a>
+                        </div>
+                        <div class="top-nav-item">
+                            <a href="../">文档</a>
+                        </div>
+                        <div class="top-nav-item">
+                            <a>示例</a>
+                        </div>
+                        <div class="top-nav-item">
+                            <a href="https://git.oschina.net/hyjiacan/TinySelect/attach_files">下载</a>
+                        </div>
+                        <div class="top-nav-item">
+                            <a href="https://git.oschina.net/hyjiacan/TinySelect/issues">问题和建议</a>
+                        </div>
+                        <script src='https://git.oschina.net/hyjiacan/TinySelect/star_widget_preview'></script>
+                        <script src='https://git.oschina.net/hyjiacan/TinySelect/fork_widget_preview'></script>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="content">
-            <div id="title"></div>
-            <iframe src="" name="iframe"></iframe>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div id="example-list"></div>
+            </div>
+            <div class="col-md-8">
+                <div class="content">
+                    <iframe src="" name="iframe"></iframe>
+                </div>
+            </div>
         </div>
     </div>
     <script>
-        $(function () {
+        $(function() {
             var examples = TinySelect('#example-list', {
                 aslist: true,
                 item: {
@@ -35,11 +87,9 @@
                     }
                 },
                 header: {
-                    render: function (header) {
-                        this.append($('<h2>')
-                            .append('TinySelect 示例')
-                            .append($('<small>').append('<a href="https://git.oschina.net/hyjiacan/TinySelect">项目主页</a>')))
-                            .append($('<div class="tips">Tips:<br/>其实左侧这个导航就是TinySelect的列表模式</div>'));
+                    render: function(header) {
+                        this.append($('<h3>').append('示例列表'))
+                            .append($('<div class="tips">Tips: 这个列表就是TinySelect的列表模式</div>'));
                     },
                     filter: {
                         style: {
@@ -55,14 +105,12 @@
                 }
             });
 
-
-            examples.on('select', function (e) {
-                $('#title').text(e.data.title);
+            examples.on('select', function(e) {
                 $('iframe').attr('src', e.data.file);
                 window.location.hash = e.data.file;
             });
 
-            $.getJSON('../example-resource/layout.json').then(function (items) {
+            $.getJSON('../example-resource/layout.json').then(function(items) {
                 examples.load(items).value(window.location.hash.replace('#', '') || 'single.html', true);
             });
         });

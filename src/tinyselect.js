@@ -11,7 +11,7 @@
  * @param {Window} win 窗口对象
  * @param {jQuery} $ jQuery别名
  */
-(function (win, $) {
+(function(win, $) {
     // 来一波严格模式
     'use strict';
 
@@ -369,14 +369,14 @@
      * 
      * @param {Function} fn 要异步调用的函数
      */
-    var asyncCall = function (fn) {
+    var asyncCall = function(fn) {
         win.setTimeout(fn, 0);
     };
 
     /**
      * 对象深度复制工具，始终返回新的对象
      */
-    var clone = function (obj1, obj2) {
+    var clone = function(obj1, obj2) {
         return $.extend(TRUE, $.isArray(obj1) ? [] : {}, obj1, obj2);
     };
 
@@ -386,7 +386,7 @@
      * @param {String} [tagName='div'] 标签名称，默认为 div
      * @return {jQueryObject} 创建的元素
      */
-    var createElement = function (className, tagName) {
+    var createElement = function(className, tagName) {
         return $('<' + (tagName || 'div') + ' class="' + className + '">');
     };
 
@@ -441,7 +441,7 @@
          * @param  {Object|Array} option 选项或数据
          * @return {TinySelect} 新的实例
          */
-        init: function (context, option) {
+        init: function(context, option) {
             // 保存实例对象到变量里面
             var ts = this;
 
@@ -476,7 +476,7 @@
             bindEvent(ts);
 
             // 渲染项
-            renderItems(ts, function (data) {
+            renderItems(ts, function(data) {
                 // 这里搞了个回调，以在所有项渲染完成后触发组件的ready 事件
                 emitEvent(ts, evt_ready, {
                     data: data
@@ -495,7 +495,7 @@
          * @param {Function} handler 事件处理函数，
          * @return {TinySelect} 当前实例
          */
-        on: function (eventType, handler) {
+        on: function(eventType, handler) {
             // 检查事件是否支持 不支持就在console提示，然后返回
             if (evt_supported.indexOf(eventType) === -1) {
                 console.warn(evt_notSupportedMsg + ':' + eventType);
@@ -522,7 +522,7 @@
          * @param {Function} handler 要解除的事件处理函数
          * @return {TinySelect} 当前实例
          */
-        off: function (eventType, handler) {
+        off: function(eventType, handler) {
             // 检查事件是否支持 不支持就直接返回
             if (evt_supported.indexOf(eventType) === -1) {
                 return this;
@@ -551,7 +551,7 @@
          * @param {Function} callback 显示完成后的回调函数
          * @return {TinySelect} 当前实例
          */
-        show: function (callback) {
+        show: function(callback) {
             var dom = this.dom;
 
             // 列表模式调用无效
@@ -563,7 +563,7 @@
             fixPosition($(this.context), dom, this.option);
 
             // 用fadein搞个动画
-            dom.fadeIn('fast', function () {
+            dom.fadeIn('fast', function() {
 
                 // 下拉框显示出来后，如果过滤框可见，则将焦点放到过滤框中
                 dom.find(selector_dot + css_header +
@@ -583,14 +583,14 @@
          * @param {Function} callback 隐藏完成后的回调函数
          * @return {TinySelect} 当前实例
          */
-        hide: function (callback) {
+        hide: function(callback) {
             // 列表模式调用无效
             if (this.option.aslist) {
                 return this;
             }
 
             // 用fadeout搞个隐藏时候的动画
-            this.dom.fadeOut('fast', function () {
+            this.dom.fadeOut('fast', function() {
                 if (callback) {
                     callback.call(this);
                 }
@@ -606,14 +606,14 @@
          * @param {Boolean} toggle 是否隐藏未命中项，显示命中项
          * @return {Array} 筛选命中的项组成的数组
          */
-        filter: function (keyOrFn, toggle) {
+        filter: function(keyOrFn, toggle) {
             var result = [];
 
             // 判断是通过关键字过滤还是传入了自定义的过滤器（函数）
             var isfn = $.isFunction(keyOrFn);
 
             // 取到所有下拉项的DOM，然后遍历过滤
-            getItemsFromDom(this).each(function (index, item) {
+            getItemsFromDom(this).each(function(index, item) {
                 item = $(item);
 
                 // 取到这一项的数据  数据是通过jQuery的 xx.data(str_data) 取到的
@@ -647,7 +647,7 @@
          * @param {Boolean} trigger 是否引发事件，默认为 false
          * @return {any} 返回值或实例
          */
-        value: function (val, trigger) {
+        value: function(val, trigger) {
             // 没有传参数，这时候就是获取值
             if (arguments.length === 0) {
                 return getValue(this);
@@ -662,7 +662,7 @@
          * 清除选中的项
          * @rerurn {TinySelect} 下拉组件实例
          */
-        clear: function () {
+        clear: function() {
             // 清除所有的选中项
             clearSelection(this);
 
@@ -675,7 +675,7 @@
          * @param {Function} callback 渲染完成后的回调函数
          * @return {TinySelect} 下拉组件实例
          */
-        load: function (data, callback) {
+        load: function(data, callback) {
             // 将新的数据绑定到组件上
             // 为了保持数据的纯洁性，用clone创建数据的副本来玩
             this.option.item.data = clone(data);
@@ -690,7 +690,7 @@
          * @param {Boolean} readonly 设置是否只读，若不传这个参数，那就是获取只读状态
          * @return {Boolean|TinySelect} 获取状态时返回是否只读的状态，设置值时返回组件实例
          */
-        readonly: function (readonly) {
+        readonly: function(readonly) {
             if (arguments.length === 0) {
                 return this.option.readonly;
             }
@@ -834,7 +834,7 @@
         var input = $('<input type="text"  placeholder="' +
             filter.placeholder + '" class="' + css_filter + '" />').css(filter.style);
 
-        input.on('keyup', function (e) {
+        input.on('keyup', function(e) {
 
             var val = input.val();
 
@@ -914,12 +914,12 @@
         // 给checkbox绑定change事件，以在checkbox被点击，勾选状态改变后执行选中/取消选中
         // 项的选中状态，通过是否包含css类 tinyselect-item-selected 指示 
         // 这里只会操作可见的下拉项，以适用于过滤后的数据项批量操作
-        checkbox.change(function () {
+        checkbox.change(function() {
             // 判断此时的checkbox是否是被勾选的
             var checked = checkbox.is(':checked');
 
             // 把所有可见的下拉项都弄出来，循环设置选中状态
-            getItemsFromDom(ts, selector_visible).each(function (index, item) {
+            getItemsFromDom(ts, selector_visible).each(function(index, item) {
                 item = $(item);
 
                 // 如果此时checkbox是勾选的  那就是要设置可见的项为选中状态了
@@ -1045,7 +1045,7 @@
         // 渲染剩下的项（只在 visibleCount>0 并且 visibleCount > length时会执行到这里
         if (option.async) {
             // 异步渲染剩下的项
-            asyncCall(function () {
+            asyncCall(function() {
                 renderSpecifiedItems(ts, box, option, callback, visibleCount);
             });
         } else {
@@ -1184,7 +1184,7 @@
 
         var dom = ts.dom;
 
-        context.click(function (e) {
+        context.click(function(e) {
             // 如果是只读的，就不显示出来
             if (ts.option.readonly) {
                 return;
@@ -1205,7 +1205,7 @@
         });
 
         // 给下拉组件绑定window.resize事件，以在改变浏览器大小时，下拉组件可以停留在正确的位置上
-        $(win).resize(function () {
+        $(win).resize(function() {
             // 为了不那么影响性能，如果下拉组件没有显示出来，就啥也不做
             if (!dom.is(selector_visible)) {
                 return;
@@ -1259,7 +1259,7 @@
 
         var dom = ts.dom;
         // 给window对象绑定点击事件，以关闭下拉组件
-        $(win).click(function (e) {
+        $(win).click(function(e) {
             var target = e.target;
 
             // 如果是点击了 context 或者 点击了下拉组件，啥也不做
@@ -1293,7 +1293,7 @@
         // 给下拉组件的下拉项容器添加事件的委托 .tinyselect-box
         // 委托容器监听下拉项的点击事件  .tinyselect-item 
         ts.dom.find(selector_dot + css_box)
-            .delegate(selector_dot + css_item, 'click', function () {
+            .delegate(selector_dot + css_item, 'click', function() {
                 var item = $(this);
 
                 // 下拉项被点击了，切换这个项的选中状态
@@ -1331,7 +1331,7 @@
         var render = resultOption.render;
 
         // 绑定一下下拉组件的项选中事件 
-        ts.on(evt_select, function (e) {
+        ts.on(evt_select, function(e) {
             // 根据配置  option.item.textField 属性取出数据项的显示文本  
             var text = e.data[option.item.textField];
 
@@ -1364,13 +1364,13 @@
         }
 
         // 绑定取消选中事件 
-        ts.on(evt_unselect, function (e) {
+        ts.on(evt_unselect, function(e) {
             // 点击项后，如果需要取消选中这一项，那么就把已经选中的结果从结果容器中移除
             // 移除的依据是元素的 data-tiny-index 属性
             // .tinyselect-result-item[data-tiny-index=n]:first
             result.find(selector_dot + css_result +
-                buildAttrSelector(str_indexAttr, e.index) + selector_first)
-                .fadeOut(function () { // 移除的时候也加个动画的效果
+                    buildAttrSelector(str_indexAttr, e.index) + selector_first)
+                .fadeOut(function() { // 移除的时候也加个动画的效果
                     $(this).remove();
                 });
 
@@ -1390,7 +1390,7 @@
     function bindKeyboardEvent(ts) {
 
         // 这里把键盘事件绑定到 window 对象上
-        $(win).keydown(function (e) {
+        $(win).keydown(function(e) {
             // 如果下拉组件是隐藏的，就不处理这个
             if (!ts.dom.is(selector_visible)) {
                 return;
@@ -1434,6 +1434,14 @@
 
             scrollToItem(now);
         });
+
+        // 每一项绑定  mouseover事件
+        // 通过这个来添加和移除键盘方向键绑定上的样式名
+        ts.dom.delegate(selector_dot + css_item, 'mouseover', function() {
+            console.log(this);
+            $(this).addClass(css_itemHover).siblings().removeClass(css_itemHover);
+        });
+
     }
 
     /**
@@ -1469,7 +1477,7 @@
             // 设置结果上用来取消某项选中的元素，鼠标点一下就取消选中对应的
             // 取消选中的依据是元素的 data-tiny-index 属性
             // .tinyselect-item-selected[data-tiny-index]:first
-            .append(createElement(css_resultLink, tag_span).click(function () {
+            .append(createElement(css_resultLink, tag_span).click(function() {
                 // 如果是只读的，就不能操作
                 if (ts.option.readonly) {
                     return;
@@ -1481,7 +1489,7 @@
 
                 return FALSE;
             }))
-            .fadeIn(function () {
+            .fadeIn(function() {
                 // 添加结果项的动画完成后，给结果容器添加滚动条滚动的动画
                 var result = $(this).parent();
                 // 滚动到最底部
@@ -1525,7 +1533,7 @@
         arg.type = eventType;
 
         // 根据绑定顺序循环调用事件处理函数
-        ts.events[eventType].forEach(function (fn) {
+        ts.events[eventType].forEach(function(fn) {
             fn.call(ts, arg);
         });
     }
@@ -1553,9 +1561,9 @@
 
         // 多选  返回所有选中项的值组成的数组
         return getItemsFromDom(ts,
-            selector_dot + css_selected).map(function (index, item) {
-                return getData($(item))[valueField];
-            });
+            selector_dot + css_selected).map(function(index, item) {
+            return getData($(item))[valueField];
+        });
     }
 
     /**
@@ -1613,7 +1621,7 @@
         if (ts.option.result.multi) {
             // 根据样式类取消选中项
             // .tinyselect-item-selected
-            items.filter(selector_dot + css_selected).each(function (index, item) {
+            items.filter(selector_dot + css_selected).each(function(index, item) {
                 // 取消选中项并触发  unselect 事件
                 deselectItem(ts, $(item), TRUE);
             });
