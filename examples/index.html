@@ -59,15 +59,25 @@
     <script>
         $(function() {
             var iframe = $('iframe').get(0);
-            iframe.onload = function() {
-                setTimeout(function() {
-                    $(iframe).animate({
-                        height: iframe.contentWindow.document.body.scrollHeight
-                    });
-                }, 1000);
-            }
 
             fixHeader();
+
+            iframe.onload = function() {
+                if ($(window).width() >= 992) {
+                    return;
+                }
+                setTimeout(function() {
+                    $(iframe).height(iframe.contentWindow.document.body.scrollHeight);
+                }, 300);
+            };
+
+            var handler;
+            $(window).resize(function() {
+                clearTimeout(handler);
+                handler = setTimeout(function() {
+                    $(iframe).height($(window).width() < 992 ? iframe.contentWindow.document.body.scrollHeight : '100%');
+                }, 300);
+            });
 
             var examples = TinySelect('#example-list', {
                 aslist: true,
@@ -82,13 +92,11 @@
                 },
                 header: {
                     render: function(header) {
-                        this.append($('<h3>').append('示例列表'))
-                            .append($('<div class="tips">Tips: 这个列表就是TinySelect的列表模式</div>'));
+                        this.prepend($('<div>').append($('<h3>').append('示例列表'))
+                            .append('<div class="tips">Tips: 这个列表就是TinySelect的列表模式</div>'));
                     },
                     filter: {
-                        style: {
-                            display: 'none'
-                        }
+                        trigger: 'change'
                     }
                 },
                 footer: {

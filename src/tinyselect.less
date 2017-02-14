@@ -32,7 +32,6 @@
         border-top-width: 0;
         box-shadow: rgba(0, 0, 0, .2) 0 2px 4px 2px;
     }
-    
     .tinyselect-box {
         overflow-y: auto;
         .tinyselect-item {
@@ -54,11 +53,9 @@
             &-after {
                 float: right;
             }
-            
             &-hover {
                 border-color: #1773B6;
             }
-            
             &-selected {
                 color: #1773B6;
                 background-color: #DFF2FF;
@@ -91,6 +88,11 @@
         font-size: smaller;
         padding: 2px 5px;
         border-top: 1px solid #EEE;
+        &:after {
+            content: ' ';
+            clear: both;
+            display: block;
+        }
         &-left {
             display: block;
             float: left;

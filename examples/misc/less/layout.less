@@ -12,9 +12,6 @@
     .col-md-4,
     .col-md-8 {
         height: 100%;
-        .content {
-            overflow: auto;
-        }
     }
 }
 
@@ -37,6 +34,22 @@
         img {
             display: none;
         }
+    }
+}
+
+.content {
+    height: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+    iframe {
+        margin: 0;
+        padding: 0;
+        border: none;
+        width: 100%;
+        @media (min-width: 992px) {
+            height: 100%;
+        }
+        background-color: #FFF;
     }
 }
 

@@ -789,6 +789,7 @@
 
         // 创建下拉项的容器
         var box = createElement(css_box).css(option.box.style);
+        ts.box = box;
         container.append(box);
 
         // 创建下拉的底部元素
@@ -805,7 +806,7 @@
     function renderHeader(ts, option) {
         // 创建  header
         var header = createElement(css_header);
-
+        ts.header = header;
         // 设置头部的样式
         header.css(ts.option.header.style);
 
@@ -861,7 +862,7 @@
     function renderFooter(ts, option) {
         // 创建下拉底部DOM元素
         var footer = createElement(css_footer);
-
+        ts.footer = footer;
         // 设置下拉底部的样式
         footer.css(ts.option.footer.style);
 
@@ -967,7 +968,7 @@
     function renderItems(ts, callback) {
         // 先从下拉框里面找出存放下拉项的容器 
         // 选择器  .tinyselect-item
-        var box = ts.dom.find(selector_dot + css_box);
+        var box = ts.box;
 
         var option = ts.option.item;
 
@@ -1026,6 +1027,12 @@
         // 如果可见项的数量大于等于数据项的数量，那么就让box的高度自己高兴吧
         // 当前  visibleCount为0也是这样
         if (visibleCount === 0 || visibleCount >= length) {
+            return;
+        }
+
+        // 如果设置了container高度，就直接box高度了
+        if (!isNaN(parseInt(ts.dom.get(0).style.height))) {
+            box.height(ts.dom.height() - ts.header.height() - ts.footer.height());
             return;
         }
 
@@ -1292,20 +1299,19 @@
     function bindItemClickEvent(ts) {
         // 给下拉组件的下拉项容器添加事件的委托 .tinyselect-box
         // 委托容器监听下拉项的点击事件  .tinyselect-item 
-        ts.dom.find(selector_dot + css_box)
-            .delegate(selector_dot + css_item, 'click', function() {
-                var item = $(this);
+        ts.box.delegate(selector_dot + css_item, 'click', function() {
+            var item = $(this);
 
-                // 下拉项被点击了，切换这个项的选中状态
-                setItemValue(ts, item, TRUE, TRUE);
+            // 下拉项被点击了，切换这个项的选中状态
+            setItemValue(ts, item, TRUE, TRUE);
 
-                // 如果是单选，就隐藏下拉组件，如果是多选，就啥也不做，即保持下拉组件的打开状态
-                if (ts.option.result.multi) {
-                    return;
-                }
+            // 如果是单选，就隐藏下拉组件，如果是多选，就啥也不做，即保持下拉组件的打开状态
+            if (ts.option.result.multi) {
+                return;
+            }
 
-                ts.hide();
-            });
+            ts.hide();
+        });
     }
 
     /**
@@ -1780,8 +1786,7 @@
      */
     function getSelectedCount(ts) {
         // 构建选择器： .tinyselect-footer .tinyselect-footer-right .tinyselect-count-selected
-        return ts.dom.find(selector_dot + css_footer +
-            selector_spacedot + css_footerRight +
+        return ts.footer.find(selector_spacedot + css_footerRight +
             selector_spacedot + css_selectedCount);
     }
 
@@ -1794,7 +1799,7 @@
      */
     function getItemsFromDom(ts, addon) {
         // 构建选择器: .tinyselect-box .tinyselect-item<addon>
-        return ts.dom.find(selector_dot + css_box + selector_spacedot + css_item + (addon || ''));
+        return ts.box.find(selector_spacedot + css_item + (addon || ''));
     }
 
     /**
