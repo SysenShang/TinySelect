@@ -50,15 +50,23 @@ module.exports = function(grunt) {
                 tasks: ['jshint', 'uglify']
             },
             css: {
-                files: ['src/*.less'],
+                files: ['src/*.less', 'examples/misc/less/*.less'],
                 tasks: ['less']
             }
         },
         less: {
             options: {
-                compress: true
+                compress: true,
+                sourceMap: true
             },
-            compile: {
+            example: {
+                expand: true,
+                cwd: 'examples/misc/less/',
+                src: ['*.less'],
+                dest: 'examples/misc/css/',
+                ext: '.css'
+            },
+            dist: {
                 files: {
                     'dist/tinyselect.css': 'src/tinyselect.less'
                 }

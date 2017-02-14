@@ -1,0 +1,34 @@
+.astable.tinyselect-container {
+    overflow: auto;
+    box-sizing: border-box;
+    .box-wrapper {
+        overflow-y: auto;
+        overflow-x: hidden;
+        .tinyselect-box {
+            display: table;
+            width: 100%;
+            border-collapse: collapse;
+            .tinyselect-item {
+                display: table-row;
+                border: none;
+                // 这里设置项下所有的div都以单元格的方式显示
+                >div {
+                    display: table-cell;
+                    float: none;
+                    border-style: solid;
+                    border-color: #EEE;
+                    border-width: 1px;
+                    &:first-child {
+                        border-left-width: 1px;
+                    }
+                    &:last-child {
+                        border-right-width: 1px;
+                    }
+                }
+                &-hover {
+                    background-color: #CCC;
+                }
+            }
+        }
+    }
+}

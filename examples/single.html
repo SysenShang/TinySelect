@@ -6,11 +6,12 @@
     <script src="../lib/jquery-1.10.2.min.js"></script>
     <script src="../dist/tinyselect.js"></script>
     <link rel="stylesheet" type="text/css" href="../dist/tinyselect.css" />
-    <link rel="stylesheet/less" type="text/css" href="../example-resource/example.less" />
+    <link rel="stylesheet" type="text/css" href="misc/css/example.css" />
     <link rel="stylesheet" type="text/css" href="../lib/codemirror/codemirror.css" />
     <script src="../lib/codemirror/codemirror.js"></script>
     <script src="../lib/codemirror/mode/javascript/javascript.js"></script>
-    <script src="../example-resource/source.js"></script>
+    <script src="../lib/codemirror/mode/css/css.js"></script>
+    <script src="misc/js/source.js"></script>
 </head>
 
 <body>
@@ -18,7 +19,7 @@
         <div id="tinyselectcontext"></div>
     </div>
     <script>
-        $.getJSON('../example-resource/data.json').then(function(data) {
+        $.getJSON('misc/data/data.json').then(function(data) {
             TinySelect('#tinyselectcontext', data);
         });
     </script>

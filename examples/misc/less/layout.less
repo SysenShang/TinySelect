@@ -1,3 +1,29 @@
+@media (min-width: 992px) {
+    html,
+    body {
+        height: 100%;
+        box-sizing: border-box;
+    }
+    body {
+        padding-top: 80px;
+    }
+    .container,
+    .row,
+    .col-md-4,
+    .col-md-8 {
+        height: 100%;
+        .content {
+            overflow: auto;
+        }
+    }
+}
+
+@media (max-width: 992px) {
+    body {
+        padding-top: 0;
+    }
+}
+
 .navbar.navbar-inner .container {
     h1,
     p,
@@ -17,21 +43,27 @@
 #header {
     position: relative;
     left: 0;
-    height: 60px;
-    line-height: 30px;
     color: #666;
-    h1 {
-        float: left;
+    @media (min-width: 992px) {
+        height: 60px;
+        line-height: 30px;
+        h1 {
+            float: left;
+        }
     }
     .items {
-        height: 70px;
-        line-height: 70px;
+        @media (min-width: 992px) {
+            height: 70px;
+            line-height: 70px;
+        }
         padding: 5px;
         box-sizing: border-box;
         small {
             margin-left: 10px;
             display: block;
-            float: left;
+            @media (min-width: 992px) {
+                float: left;
+            }
             color: #888;
         }
         .osc_star_widget,

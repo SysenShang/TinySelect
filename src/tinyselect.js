@@ -814,7 +814,7 @@
 
         // 调用自定义的头部渲染函数
         if (option.header.render) {
-            option.header.render.call(header, option.data);
+            option.header.render.call(header, option.item.data);
         }
 
         return header;
@@ -1438,7 +1438,6 @@
         // 每一项绑定  mouseover事件
         // 通过这个来添加和移除键盘方向键绑定上的样式名
         ts.dom.delegate(selector_dot + css_item, 'mouseover', function() {
-            console.log(this);
             $(this).addClass(css_itemHover).siblings().removeClass(css_itemHover);
         });
 
@@ -1451,6 +1450,10 @@
      */
     function scrollToItem(item) {
         var box = item.parent();
+        if (!/auto/i.test(box.css('overflowY'))) {
+            box = box.parent();
+        }
+
         // 设置滚动条的位置 
         box.stop().animate({
             scrollTop: item.offset().top - box.offset().top + box.scrollTop()
@@ -1466,6 +1469,11 @@
      * @return {jQueryObject} 新创建的项的jQuery对象
      */
     function renderMultiSelectResultItem(ts, text, index) {
+        // 列表模式不渲染这个
+        if (ts.option.aslist) {
+            return;
+        }
+
         // 创建元素
         return createElement(css_result)
             // 设置样式

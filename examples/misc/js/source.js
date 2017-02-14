@@ -13,10 +13,6 @@ $(function() {
         }).join('\n');
     }
 
-    function loadLessjs() {
-        $.getScript('../lib/less.min.js');
-    }
-
     var codeheader = $('<div class="sourceheader">').text('代码');
     var codeblock = $('<div>');
 
@@ -32,20 +28,13 @@ $(function() {
         mode: 'text/javascript'
     }).setSize('auto', 'auto');
 
-    var less = $('link[rel="stylesheet/less"]');
+    var less = $('var[type=less]:first');
     if (!less.length) {
         return;
     }
-    var lessfile = less.filter('[data-code=true]');
 
-    if (!lessfile.length) {
-        loadLessjs();
-        return;
-    }
-
-
-    $.get(lessfile.attr('href')).then(function(lesstext) {
-        var styleheader = $('<div class="sourceheader">').text('样式');
+    $.get(less.attr('src')).then(function(lesstext) {
+        var styleheader = $('<div class="sourceheader">').text('Less 样式');
         var styleblock = $('<div>');
 
         $(document.body)
@@ -59,7 +48,5 @@ $(function() {
             matchBrackets: true,
             mode: 'text/x-less'
         }).setSize('auto', 'auto');
-
-        loadLessjs();
     });
 });

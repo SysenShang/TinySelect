@@ -39,6 +39,10 @@
         "file": "single-list-clean.html"
     },
     {
+        "title": "表格模式",
+        "file": "single-table.html"
+    },
+    {
         "title": "动态加载数据",
         "file": "dynamic-load-data.html"
     },
