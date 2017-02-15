@@ -1359,7 +1359,13 @@
             // 处理多选的结果项
 
             // 添加一个结果项到结果容器中
-            result.append(renderMultiSelectResultItem(ts, text, e.index));
+            var item = renderMultiSelectResultItem(ts, text, e.index);
+            result.append(item);
+
+            // 滚动到最底部
+            result.stop().animate({
+                scrollTop: result[0].scrollHeight
+            });
 
             // 设置多选的选中项数量
             setData(count, (getData(count) || 0) + 1);
@@ -1381,9 +1387,7 @@
             // .tinyselect-result-item[data-tiny-index=n]:first
             result.find(selector_dot + css_result +
                     buildAttrSelector(str_indexAttr, e.index) + selector_first)
-                .fadeOut(function() { // 移除的时候也加个动画的效果
-                    $(this).remove();
-                });
+                .remove();
 
             // 设置多选的选中项数量
             setData(count, getData(count) - 1);
@@ -1507,15 +1511,7 @@
                     buildAttrSelector(str_indexAttr, index) + selector_first), TRUE);
 
                 return FALSE;
-            }))
-            .fadeIn(function() {
-                // 添加结果项的动画完成后，给结果容器添加滚动条滚动的动画
-                var result = $(this).parent();
-                // 滚动到最底部
-                result.stop().animate({
-                    scrollTop: result[0].scrollHeight
-                });
-            });
+            }));
     }
 
     /**
