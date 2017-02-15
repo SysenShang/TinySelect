@@ -1871,5 +1871,5 @@
     /**
      * 设置TinySelect到window对象上面
      */
-    win.TinySelect = TinySelect;
+    win.tinyselect = TinySelect;
 })(window, jQuery);

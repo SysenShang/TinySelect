@@ -1,34 +1,35 @@
 {
-  "name": "tinyselect",
-  "version": "0.1.0",
-  "description": "一个灵活的WEB下拉组件",
-  "keywords": [
-    "select",
-    "combo",
-    "dropdown"
-  ],
-  "homepage": "http://git.oschina.net/hyjiacan/TinySelect",
-  "example": "http://hyjiacan.oschina.io/tinyselect",
-  "bugs": {
-    "url": "http://git.oschina.net/hyjiacan/TinySelect/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://git.oschina.net/hyjiacan/TinySelect.git"
-  },
-  "license": "MIT",
-  "author": "hyjiacan <dev@hyjiacan.com> (http://www.hyjiacan.com)",
-  "main": "dist/tinyselect.min.js",
-  "dependencies": {
-    "jquery": "^1.11.0"
-  },
-  "devDependencies": {
-    "grunt": "^1.0.1",
-    "grunt-cli": "^1.2.0",
-    "grunt-contrib-copy": "^1.0.0",
-    "grunt-contrib-jshint": "^1.1.0",
-    "grunt-contrib-less": "^1.4.0",
-    "grunt-contrib-uglify": "^2.0.0",
-    "grunt-contrib-watch": "^1.0.0"
-  }
+    "name": "tinyselect",
+    "version": "0.1.0",
+    "description": "一个灵活的WEB下拉组件",
+    "keywords": [
+        "select",
+        "combo",
+        "dropdown",
+        "tinyselect"
+    ],
+    "homepage": "http://git.oschina.net/hyjiacan/TinySelect",
+    "example": "http://hyjiacan.oschina.io/tinyselect",
+    "bugs": {
+        "url": "http://git.oschina.net/hyjiacan/TinySelect/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://git.oschina.net/hyjiacan/TinySelect.git"
+    },
+    "license": "MIT",
+    "author": "hyjiacan <dev@hyjiacan.com> (http://www.hyjiacan.com)",
+    "main": "dist/tinyselect.js",
+    "dependencies": {
+        "jquery": "^1.11.0"
+    },
+    "devDependencies": {
+        "grunt": "^1.0.1",
+        "grunt-cli": "^1.2.0",
+        "grunt-contrib-copy": "^1.0.0",
+        "grunt-contrib-jshint": "^1.1.0",
+        "grunt-contrib-less": "^1.4.0",
+        "grunt-contrib-uglify": "^2.0.0",
+        "grunt-contrib-watch": "^1.0.0"
+    }
 }
