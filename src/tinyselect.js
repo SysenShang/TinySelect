@@ -1032,7 +1032,14 @@
 
         // 如果设置了container高度，就直接box高度了
         if (!isNaN(parseInt(ts.dom.get(0).style.height))) {
-            box.height(ts.dom.height() - ts.header.height() - ts.footer.height());
+            var boxHeight = ts.dom.height();
+            if (ts.header.is(selector_visible)) {
+                boxHeight -= ts.header.height();
+            }
+            if (ts.footer.is(selector_visible)) {
+                boxHeight -= ts.footer.height();
+            }
+            box.height(boxHeight);
             return;
         }
 
