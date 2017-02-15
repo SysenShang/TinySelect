@@ -35,7 +35,7 @@
         "title": "多选列表模式",
         "file": "multiple-list.html"
     }, {
-        "title": "纯单选列表模式",
+        "title": "单选列表模式(没有头部和底部)",
         "file": "single-list-clean.html"
     },
     {

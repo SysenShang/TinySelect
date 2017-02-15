@@ -1040,21 +1040,19 @@
                 boxHeight -= ts.footer.height();
             }
             box.height(boxHeight);
-            return;
+        } else {
+            // 看有没有设置  option.box.style.height
+            // 如果没有设置，我就自作聪明，给计算一下
+            // 我想让box的高度=第一个下拉项的高度*visibleCount
+
+            // 根据第一项来计算容器的理论高度： 行高+上下padding
+            var h = parseInt(item.css('lineHeight')) +
+                parseInt(item.css('paddingTop')) +
+                parseInt(item.css('paddingBottom'));
+
+            // 数据项的数量大于可见项数量时，设置容器高度为可见项数量
+            box.height(visibleCount * h);
         }
-
-        // 看有没有设置  option.box.style.height
-        // 如果没有设置，我就自作聪明，给计算一下
-        // 我想让box的高度=第一个下拉项的高度*visibleCount
-
-        // 根据第一项来计算容器的理论高度： 行高+上下padding
-        var h = parseInt(item.css('lineHeight')) +
-            parseInt(item.css('paddingTop')) +
-            parseInt(item.css('paddingBottom'));
-
-        // 数据项的数量大于可见项数量时，设置容器高度为可见项数量
-        box.height(visibleCount * h);
-
         // 这里分两次渲染，假装考虑性能问题
         // 渲染剩下的项（只在 visibleCount>0 并且 visibleCount > length时会执行到这里
         if (option.async) {
