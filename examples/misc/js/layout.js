@@ -1,7 +1,7 @@
 function fixHeader() {var _hmt = _hmt || [];
 	(function() {
 	  var hm = document.createElement("script");
-	  hm.src = "https://hm.baidu.com/hm.js?8eaadfe1d8e7bd63e5b87dacb0b27ce1";
+	  hm.src = "https://hm.baidu.com/hm.js?3b889148d3a97c2e11263168434b1788";
 	  var s = document.getElementsByTagName("script")[0]; 
 	  s.parentNode.insertBefore(hm, s);
 	})();
