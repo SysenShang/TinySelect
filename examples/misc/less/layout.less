@@ -112,14 +112,41 @@
                 &:after {
                     content: ' ';
                     position: absolute;
-                    right: 0;
-                    top: 0;
+                    right: 5px;
+                    top: 5px;
                     display: block;
                     width: 4px;
                     height: 4px;
                     border-radius: 2px;
                     background-color: #ec6d6d;
                     box-shadow: rgba(0, 0, 0, .2) 1px 1px;
+                }
+                .star-content,
+                .fork-content {
+                    box-shadow: none;
+                    width: auto;
+                    height: auto;
+                    font-weight: bolder;
+                    display: inline-block;
+                    .left-content,
+                    .right-content {
+                        height: auto;
+                        width: auto;
+                        float: none;
+                        display: inline-block;
+                    }
+                    .left-content {
+                        .img-content {
+                            display: none;
+                        }
+                        .star-name,
+                        .fork-name {
+                            line-height: inherit;
+                        }
+                    }
+                    .right-content {
+                        border-left: none;
+                    }
                 }
             }
         }
