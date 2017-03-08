@@ -39,15 +39,15 @@
                         </div>
                         <script src='https://git.oschina.net/hyjiacan/TinySelect/star_widget_preview'></script>
                         <script src='https://git.oschina.net/hyjiacan/TinySelect/fork_widget_preview'></script>
-						<div class="top-nav-item">
-							<a href="http://tongji.baidu.com/web/welcome/ico?s=3b889148d3a97c2e11263168434b1788" target="_blank">访问统计</a>
-						</div>
+                        <div class="top-nav-item">
+                            <a href="http://tongji.baidu.com/web/welcome/ico?s=3b889148d3a97c2e11263168434b1788" target="_blank">访问统计</a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="container">
+    <div class="container" id="content">
         <div class="row">
             <div class="col-md-4">
                 <div id="example-list"></div>
@@ -95,7 +95,8 @@
                 },
                 header: {
                     render: function(header) {
-                        this.prepend($('<div>').append($('<h3>').append('示例列表'))
+                        this.prepend($('<div>')
+                            .append($('<h3>').append('示例列表'))
                             .append('<div class="tips">Tips: 这个列表就是TinySelect的列表模式</div>'));
                     },
                     filter: {
