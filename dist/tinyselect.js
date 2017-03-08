@@ -1,5 +1,5 @@
 /**
- * TinySelect 0.1.0 2017-03-08
+ * TinySelect 0.2.0 2017-03-08
  * @作者: hyjiacan
  * @源码: https://git.oschina.net/hyjiacan/TinySelect.git
  * @示例: http://hyjiacan.oschina.io/tinyselect
