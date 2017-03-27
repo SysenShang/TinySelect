@@ -368,9 +368,10 @@
      * 使用异步调用，这是通过  setTimeout 来假装的
      * 
      * @param {Function} fn 要异步调用的函数
+     * @param {Array} args 函数参数的数组
      */
-    var asyncCall = function(fn) {
-        win.setTimeout(fn, 0);
+    var asyncCall = function(fn, args) {
+        win.setTimeout(fn, 0, args);
     };
 
     /**
@@ -1057,9 +1058,7 @@
         // 渲染剩下的项（只在 visibleCount>0 并且 visibleCount > length时会执行到这里
         if (option.async) {
             // 异步渲染剩下的项
-            asyncCall(function() {
-                renderSpecifiedItems(ts, box, option, callback, visibleCount);
-            });
+            asyncCall(renderSpecifiedItems, [ts, box, option, callback, visibleCount]);
         } else {
             // 同步渲染剩下的项
             renderSpecifiedItems(ts, box, option, callback, 0);
