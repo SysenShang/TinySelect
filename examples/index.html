@@ -1,125 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <title>示例 - TinySelect 一个灵活的下拉组件</title>
-    <script src="../lib/jquery-1.10.2.min.js"></script>
-    <script src="../src/tinyselect.js"></script>
-    <link rel="stylesheet" type="text/css" href="../dist/tinyselect.css" />
-    <link rel="stylesheet" type="text/css" href="misc/css/example.css" />
-    <link rel="stylesheet" href="../lib/bootstrap.min.css" />
-    <link rel="stylesheet" href="misc/css/layout.css" />
-    <script src="misc/js/layout.js"></script>
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0" />
+        <title>示例 - TinySelect 一个灵活的下拉组件</title>
+        <script src="../lib/jquery-1.10.2.min.js"></script>
+        <script src="../src/tinyselect.js"></script>
+        <link rel="stylesheet" type="text/css" href="../dist/tinyselect.css" />
+        <link rel="stylesheet" type="text/css" href="misc/css/example.css" />
+        <link rel="stylesheet" href="../lib/bootstrap.min.css" />
+        <link rel="stylesheet" href="misc/css/layout.css" />
+        <script src="misc/js/layout.js"></script>
+    </head>
 
-<body>
-    <div class="navbar navbar-default navbar-fixed-top">
-        <div class="navbar-inner">
-            <div class="container">
-                <div id="headline" class="brand"></div>
-                <div id="header">
-                    <h1>TinySelect</h1>
-                    <div class="items">
-                        <small>一个灵活的WEB下拉组件</small>
-                        <div class="top-nav-item">
-                            <a href="https://git.oschina.net/hyjiacan/TinySelect">项目主页</a>
-                        </div>
-                        <div class="top-nav-item">
-                            <a href="../">文档</a>
-                        </div>
-                        <div class="top-nav-item">
-                            <a>示例</a>
-                        </div>
-                        <div class="top-nav-item">
-                            <a href="https://git.oschina.net/hyjiacan/TinySelect/attach_files">下载</a>
-                        </div>
-                        <div class="top-nav-item">
-                            <a href="https://git.oschina.net/hyjiacan/TinySelect/issues">问题和建议</a>
-                        </div>
-                        <script src='https://git.oschina.net/hyjiacan/TinySelect/star_widget_preview'></script>
-                        <script src='https://git.oschina.net/hyjiacan/TinySelect/fork_widget_preview'></script>
-                        <div class="top-nav-item">
-                            <a href="http://tongji.baidu.com/web/welcome/ico?s=3b889148d3a97c2e11263168434b1788" target="_blank">访问统计</a>
+    <body>
+        <div class="navbar navbar-default navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <div id="headline" class="brand"></div>
+                    <div id="header">
+                        <h1>TinySelect</h1>
+                        <div class="items">
+                            <small>一个灵活的WEB下拉组件</small>
+                            <div class="top-nav-item">
+                                <a href="https://git.oschina.net/hyjiacan/TinySelect">项目主页</a>
+                            </div>
+                            <div class="top-nav-item">
+                                <a href="../">文档</a>
+                            </div>
+                            <div class="top-nav-item">
+                                <a>示例</a>
+                            </div>
+                            <div class="top-nav-item">
+                                <a href="https://git.oschina.net/hyjiacan/TinySelect/attach_files">下载</a>
+                            </div>
+                            <div class="top-nav-item">
+                                <a href="https://git.oschina.net/hyjiacan/TinySelect/issues">问题和建议</a>
+                            </div>
+                            <script src='https://git.oschina.net/hyjiacan/TinySelect/star_widget_preview'></script>
+                            <script src='https://git.oschina.net/hyjiacan/TinySelect/fork_widget_preview'></script>
+                            <div class="top-nav-item">
+                                <a href="http://tongji.baidu.com/web/welcome/ico?s=3b889148d3a97c2e11263168434b1788" target="_blank">访问统计</a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="container" id="content">
-        <div class="row">
-            <div class="col-md-4">
-                <div id="example-list"></div>
-            </div>
-            <div class="col-md-8">
-                <div class="content">
-                    <iframe src="" name="iframe"></iframe>
+        <div class="container" id="content">
+            <div class="row">
+                <div class="col-md-4">
+                    <div id="example-list"></div>
+                </div>
+                <div class="col-md-8">
+                    <div class="content">
+                        <iframe src="" name="iframe"></iframe>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <script>
-        $(function() {
-            var iframe = $('iframe').get(0);
+        <script>
+            $(function() {
+                var iframe = $('iframe').get(0);
 
-            fixHeader();
+                fixHeader();
 
-            iframe.onload = function() {
-                if ($(window).width() >= 992) {
-                    return;
-                }
-                setTimeout(function() {
-                    $(iframe).height(iframe.contentWindow.document.body.scrollHeight);
-                }, 300);
-            };
-
-            var handler;
-            $(window).resize(function() {
-                clearTimeout(handler);
-                handler = setTimeout(function() {
-                    $(iframe).height($(window).width() < 992 ? iframe.contentWindow.document.body.scrollHeight : '100%');
-                }, 300);
-            });
-
-            var examples = tinyselect('#example-list', {
-                mode: 'list',
-                item: {
-                    textField: 'title',
-                    valueField: 'file',
-                    visible: 0,
-                    style: {
-                        lineHeight: '36px',
-                        cursor: 'pointer'
+                iframe.onload = function() {
+                    if($(window).width() >= 992) {
+                        return;
                     }
-                },
-                header: {
-                    render: function(header) {
-                        this.prepend($('<div>')
-                            .append($('<h3>').append('示例列表'))
-                            .append('<div class="tips">Tips: 这个列表就是TinySelect的列表模式</div>'));
+                    setTimeout(function() {
+                        $(iframe).height(iframe.contentWindow.document.body.scrollHeight);
+                    }, 300);
+                };
+
+                var handler;
+                $(window).resize(function() {
+                    clearTimeout(handler);
+                    handler = setTimeout(function() {
+                        $(iframe).height($(window).width() < 992 ? iframe.contentWindow.document.body.scrollHeight : '100%');
+                    }, 300);
+                });
+
+                var examples = tinyselect('#example-list', {
+                    mode: 'list',
+                    item: {
+                        textField: 'title',
+                        valueField: 'file',
+                        visible: 0,
+                        style: {
+                            lineHeight: '36px',
+                            cursor: 'pointer'
+                        }
                     },
-                    filter: {
-                        trigger: 'change'
+                    header: {
+                        render: function(header) {
+                            this.prepend($('<div>')
+                                .append($('<h3>').append('示例列表'))
+                                .append('<div class="tips">Tips: 这个列表就是TinySelect的列表模式</div><br/>'));
+                        },
+                        filter: {
+                            trigger: 'change',
+                            delay: 382,
+                            placeholder: '请输入示例名称'
+                        }
+                    },
+                    footer: {
+                        totalTpl: '共%s个示例'
+                    },
+                    box: {
+                        empty: '正在加载...'
                     }
-                },
-                footer: {
-                    totalTpl: '共%s个示例'
-                },
-                box: {
-                    empty: '正在加载...'
-                }
-            });
+                });
 
-            examples.on('select', function(e) {
-                window.location.hash = iframe.src = e.data.file;
-            });
+                examples.on('select', function(e) {
+                    window.location.hash = iframe.src = e.data.file;
+                });
 
-            $.getJSON('misc/data/layout.json').then(function(items) {
-                examples.load(items).value(window.location.hash.replace('#', '') || 'single.html', true);
+                $.getJSON('misc/data/layout.json').then(function(items) {
+                    examples.load(items)
+                        .value(window.location.hash.replace('#', '') || 'single.html', true)
+                        .dom.find('.tinyselect-filter').focus();
+                });
             });
-        });
-    </script>
-</body>
+        </script>
+    </body>
 
 </html>

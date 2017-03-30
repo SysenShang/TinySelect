@@ -1,44 +1,45 @@
 <!DOCTYPE html>
 <html>
 
-<head>
-    <meta charset="utf-8" />
-    <script src="../lib/jquery-1.10.2.min.js"></script>
-    <script src="../src/tinyselect.js"></script>
-    <link rel="stylesheet" type="text/css" href="../dist/tinyselect.css" />
-    <link rel="stylesheet" type="text/css" href="misc/css/example.css" />
-    <link rel="stylesheet" type="text/css" href="../lib/codemirror/codemirror.css" />
-    <script src="../lib/codemirror/codemirror.js"></script>
-    <script src="../lib/codemirror/mode/javascript/javascript.js"></script>
-    <script src="../lib/codemirror/mode/css/css.js"></script>
-    <link rel="stylesheet" type="text/css" href="misc/css/gridlike.css" />
-    <script src="misc/js/source.js"></script>
-</head>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0" />
+        <script src="../lib/jquery-1.10.2.min.js"></script>
+        <script src="../src/tinyselect.js"></script>
+        <link rel="stylesheet" type="text/css" href="../dist/tinyselect.css" />
+        <link rel="stylesheet" type="text/css" href="misc/css/example.css" />
+        <link rel="stylesheet" type="text/css" href="../lib/codemirror/codemirror.css" />
+        <script src="../lib/codemirror/codemirror.js"></script>
+        <script src="../lib/codemirror/mode/javascript/javascript.js"></script>
+        <script src="../lib/codemirror/mode/css/css.js"></script>
+        <link rel="stylesheet" type="text/css" href="misc/css/gridlike.css" />
+        <script src="misc/js/source.js"></script>
+    </head>
 
-<body>
-    <var type="less" src="misc/less/gridlike.less"></var>
-    <div class="tinyselectcontext-container">
-        <div id="tinyselectcontext"></div>
-    </div>
+    <body>
+        <var type="less" src="misc/less/gridlike.less"></var>
+        <div class="tinyselectcontext-container">
+            <div id="tinyselectcontext"></div>
+        </div>
 
-    <div class="tips">
-        这里通过给下拉组件添加一个样式类"grid-like"来自定义弹出框的样式。
-    </div>
-    <script>
-        $.getJSON('misc/data/data.json').then(function(data) {
-            tinyselect('#tinyselectcontext', {
-                css: 'grid-like',
-                item: {
-                    data: data,
-                    // 设置所有项可见，这个属性可以阻止组件计算高度
-                    visible: 0
-                },
-                style: {
-                    width: 164
-                }
+        <div class="tips">
+            这里通过给下拉组件添加一个样式类"grid-like"来自定义弹出框的样式。
+        </div>
+        <script>
+            $.getJSON('misc/data/data.json').then(function(data) {
+                tinyselect('#tinyselectcontext', {
+                    css: 'grid-like',
+                    item: {
+                        data: data,
+                        // 设置所有项可见，这个属性可以阻止组件计算高度
+                        visible: 0
+                    },
+                    style: {
+                        width: 164
+                    }
+                });
             });
-        });
-    </script>
-</body>
+        </script>
+    </body>
 
 </html>

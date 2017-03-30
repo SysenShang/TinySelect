@@ -130,8 +130,13 @@ var ts = tinyselect('#tinyselectcontext', {
             // 为change时，输入有变化时执行
             // 为enter时，按下回车时执行
             trigger: 'enter',
+            // 此值表示在输入框经过指定时间后没有键盘输入时，触发过滤动作
+            // 单位是毫秒，默认值为 618
+            // 当 trigger 为change时有效
+            // 设置这个是为了防止使用亚洲输入法时（比如：中文，日文等）时，文字输入中将字母上屏导致的事件触发
+            delay: 618,
             // 过滤框的提示文字
-            placeholder: '请输入关键字',
+            placeholder: '输入后按回车过滤',
             // 过滤框的样式
             style: {}
         },
@@ -142,6 +147,9 @@ var ts = tinyselect('#tinyselectcontext', {
     box: {
         // 下拉列表没有数据时显示的文字
         empty: '没有数据',
+        // 数据项的布局方式
+        // 可设置的值有： list(列表布局，默认值), grid(风格布局), table(表格布局)
+        layout: layout_list,
         // 下拉项容器的样式
         style: {}
     },
@@ -155,7 +163,8 @@ var ts = tinyselect('#tinyselectcontext', {
         valueField: 'id',
         // 数据对象的文本字段，下拉项的显示文字
         textField: 'text',
-        // 可见项的数量，数据数量多余此值时出现滚动条
+        // 可见项的数量(也可以说是显示数据的行数)，数据数量多余此值时出现滚动条
+        // 组件通过计算第一项的高度 height，然后计算  height * visible 得到 box的高度
         visible: 5,
         // 下拉项的渲染器，使用返回值设置项的内容
         // render: function(itemdata, alldata){}  this 指向即将渲染的网页元素对象。
@@ -200,6 +209,11 @@ var ts = tinyselect('#tinyselectcontext', {
 };
 ```
 注：以上选项中所有的`style`项可以使用所有的`css`样式，名称中有连字符的时候可以写成`font-size`或者`fontSize`。
+另外，`box.layout`中，布局`grid`与`table`不同之处在于:
+`grid`是所有项以网格方式显示，每一行显示的项的数量与每项占用的宽度相关,如果要控制每一行显示项的数量，那么请设置项的宽度和下拉框的宽度;
+`table`的一行显示的是一项数据的多个字段
+
+不同的布局基本上都是通过不同的样式来实现的。
 
 ## 接口/Method
 
@@ -335,6 +349,9 @@ TinySelect 目前提供了三个事件：`select`, `unselect`, `ready`。
 #### 下拉项
 
 - tinyselect-box 下拉项的容器
+- tinyselect-box-layout-list 下拉项列表布局
+- tinyselect-box-layout-grid 下拉项网格布局
+- tinyselect-box-layout-table 下拉项表格布局
 - tinyselect-item 下拉项
 - tinyselect-item-selected 下拉项选中状态
 - tinyselect-item-before 下拉项文字前的元素

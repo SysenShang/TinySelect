@@ -34,9 +34,6 @@
         height: 32px;
         line-height: 32px;
         .border();
-        &.multiple {
-            height: 100px;
-        }
     }
 }
 
@@ -55,4 +52,24 @@
     font-size: small;
     color: #888;
     line-height: 16px;
+}
+
+button {
+    padding: 5px 15px;
+    border: 1px solid #DAEAF9;
+    background-color: #EEE;
+    font-size: larger;
+    margin: 10px auto;
+    color: #666;
+    &:hover {
+        color: #333;
+        background-color: darken(#EEE, 2%);
+        border-color: darken(#DAEAF9, 2%);
+        border-width: 2px;
+    }
+    &:active {
+        color: #660;
+        background-color: darken(#EEE, 4%);
+        border-color: darken(#DAEAF9, 4%);
+    }
 }

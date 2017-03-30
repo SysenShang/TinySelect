@@ -31,6 +31,11 @@
     var console = win.console;
 
     /**
+     * 保存一个 setTimeout 函数
+     */
+    var setTimeout = win.setTimeout;
+
+    /**
      * 给值true一个别名
      */
     var TRUE = !0;
@@ -253,7 +258,7 @@
     var mode_list = 'list';
 
     /**
-     * 弹出模式
+     * 显示模式-弹出
      */
     var mode_popup = 'popup';
 
@@ -261,6 +266,31 @@
      * 支持的显示模式
      */
     var support_mode = [mode_dropdown, mode_list, mode_popup];
+
+    /**
+     * 布局模式-列表
+     */
+    var layout_list = 'list';
+
+    /**
+     * 布局模式-网格
+     */
+    var layout_grid = 'grid';
+
+    /**
+     * 布局模式-列表
+     */
+    var layout_table = 'table';
+
+    /**
+     * 支持的显示模式
+     */
+    var support_layout = [layout_list, layout_grid, layout_table];
+
+    /**
+     * 输入即时过滤的定时器句柄
+     */
+    var filter_handle;
 
     /**
      * 默认的创建下拉组件选项
@@ -293,8 +323,13 @@
                 // 为change时，输入有变化时执行
                 // 为enter时，按下回车时执行
                 trigger: 'enter',
+                // 此值表示在输入框经过指定时间后没有键盘输入时，触发过滤动作
+                // 单位是毫秒，默认值为 618
+                // 当 trigger 为change时有效
+                // 设置这个是为了防止使用亚洲输入法时（比如：中文，日文等）时，文字输入中将字母上屏导致的事件触发
+                delay: 618,
                 // 过滤框的提示文字
-                placeholder: '请输入关键字',
+                placeholder: '输入后按回车过滤',
                 // 过滤框的样式
                 style: {}
             },
@@ -305,6 +340,9 @@
         box: {
             // 下拉列表没有数据时显示的文字
             empty: '没有数据',
+            // 数据项的布局方式
+            // 可设置的值有： list(列表布局，默认值), grid(风格布局), table(表格布局)
+            layout: layout_list,
             // 下拉项容器的样式
             style: {}
         },
@@ -428,7 +466,7 @@
      * @param {Array} args 函数参数的数组
      */
     var asyncCall = function(fn, args) {
-        win.setTimeout(function() {
+        setTimeout(function() {
             fn.apply(NULL, args);
         }, 0);
     };
@@ -516,9 +554,17 @@
             } else {
                 // 传的是对象，那么合并选项参数
                 ts.option = clone(defaultOption, option);
+
+                // 显示模式
                 var mode = ts.option.mode || mode_dropdown;
                 if(support_mode.indexOf(mode) === -1) {
                     throw new Error('Render mode "' + mode + '" is not supported,\nhere is the valid modes:' + support_mode.join());
+                }
+
+                // 布局模式
+                var layout = ts.option.layout || layout_list;
+                if(support_layout.indexOf(layout) === -1) {
+                    throw new Error('Item layout "' + layout + '" is not supported,\nhere is the valid modes:' + support_layout.join());
                 }
             }
 
@@ -881,6 +927,7 @@
         }
 
         // 给下拉框添加样式
+        // 用户设置的优先级最高了
         ts.dom = container.css(option.style);
 
         // 创建下拉的头部元素
@@ -888,7 +935,7 @@
 
         // 创建下拉项的容器
         var box = createElement(css_box).css(option.box.style);
-        ts.box = box;
+        ts.box = box.addClass(css_box + '-layout-' + option.box.layout);
         container.append(box);
 
         // 创建下拉的底部元素
@@ -934,9 +981,17 @@
         var input = $('<input type="text"  placeholder="' +
             filter.placeholder + '" class="' + css_filter + '" />').css(filter.style);
 
-        input.on('keyup', function(e) {
-
+        input.keyup(function(e) {
             var val = input.val();
+
+            // 只要按下了键，就先清除过滤的定时器
+            if(filter_handle) {
+                win.clearTimeout(filter_handle);
+                filter_handle = 0;
+            }
+            // 通过计算两次输入的时间差来决定是否触发事件
+            // 当某个键按下后超过 618 毫秒才触发事件
+            // 为啥618 ？  没听过黄金分割么？
 
             if(/^change$/i.test(filter.trigger) ?
                 input.data('last') === val : e.keyCode !== 13) {
@@ -945,7 +1000,10 @@
 
             input.data('last', val);
 
-            ts.filter(val, TRUE);
+            // 设置过滤的定时器
+            filter_handle = setTimeout(function() {
+                ts.filter(val, TRUE);
+            }, option.header.filter.delay);
         });
 
         return input;
@@ -1263,7 +1321,7 @@
      */
     function bindEvent(ts) {
         // 列表模式不会显示和隐藏下拉组件
-        if(!ts.option.aslist) {
+        if(ts.option.mode !== mode_list) {
             // 绑定下拉组件的显示事件
             // 这个是绑定到context上的，旨在点击context时显示下拉组件
             bindShowBoxEvent(ts);
@@ -1486,7 +1544,7 @@
                 return;
             }
 
-            // 处理多选的结果项
+            //------------- 处理多选的结果项
 
             // 添加一个结果项到结果容器中
             var item = renderMultiSelectResultItem(ts, text, e.index);
@@ -1614,7 +1672,7 @@
      */
     function renderMultiSelectResultItem(ts, text, index) {
         // 列表模式不渲染这个
-        if(ts.option.aslist) {
+        if(ts.option.mode === mode_list) {
             return;
         }
 

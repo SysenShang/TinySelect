@@ -1,16 +1,16 @@
 @media (min-width: 992px) {
-    html,
-    body {
+    body,
+    html {
         height: 100%;
         box-sizing: border-box;
     }
     body {
         padding-top: 80px;
     }
-    .container,
-    .row,
     .col-md-4,
-    .col-md-8 {
+    .col-md-8,
+    .container,
+    .row {
         height: 100%;
     }
 }
@@ -22,9 +22,9 @@
 }
 
 .navbar.navbar-inner .container {
+    a,
     h1,
-    p,
-    a {
+    p {
         display: inline-block;
         margin-right: 20px;
     }
@@ -79,8 +79,8 @@
             }
             color: #888;
         }
-        .osc_star_widget,
         .osc_fork_widget,
+        .osc_star_widget,
         .top-nav-item {
             float: left;
             margin: 0 5px;
@@ -105,8 +105,8 @@
                 }
             }
         }
-        .osc_star_widget,
-        .osc_fork_widget {
+        .osc_fork_widget,
+        .osc_star_widget {
             a {
                 position: relative;
                 &:after {
@@ -121,8 +121,8 @@
                     background-color: #ec6d6d;
                     box-shadow: rgba(0, 0, 0, .2) 1px 1px;
                 }
-                .star-content,
-                .fork-content {
+                .fork-content,
+                .star-content {
                     box-shadow: none;
                     width: auto;
                     height: auto;
@@ -139,8 +139,8 @@
                         .img-content {
                             display: none;
                         }
-                        .star-name,
-                        .fork-name {
+                        .fork-name,
+                        .star-name {
                             line-height: inherit;
                         }
                     }
@@ -150,30 +150,5 @@
                 }
             }
         }
-    }
-}
-
-.duoshuobar {
-    display: block;
-    background-color: rgba(10, 10, 10, .1);
-    color: #333;
-    border-radius: 4px;
-    border:1px solid rgba(10, 10, 10, .2);
-    box-shadow: rgba(0, 0, 0, .1) 1px 1px;
-    width: 48px;
-    height: 48px;
-    line-height: 48px;
-    text-align: center;
-    position: fixed;
-    bottom: 20%;
-    right: 8px;
-    font-size: larger;
-    text-decoration: none;
-    transition-property: background-color color;
-    transition-duration: 300ms;
-    &:hover {
-        background-color: rgba(10, 10, 10, .7);
-        color: #FFF;
-        text-decoration: none;
     }
 }

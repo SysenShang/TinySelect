@@ -8,6 +8,7 @@
         <script src="../src/tinyselect.js"></script>
         <link rel="stylesheet" type="text/css" href="../dist/tinyselect.css" />
         <link rel="stylesheet" type="text/css" href="misc/css/example.css" />
+        <link rel="stylesheet" type="text/css" href="misc/css/withoutarrow.css" />
         <link rel="stylesheet" type="text/css" href="../lib/codemirror/codemirror.css" />
         <script src="../lib/codemirror/codemirror.js"></script>
         <script src="../lib/codemirror/mode/javascript/javascript.js"></script>
@@ -16,22 +17,15 @@
     </head>
 
     <body>
+        <var type="less" src="misc/less/withoutarrow.less"></var>
         <div class="tinyselectcontext-container">
-            <div id="tinyselectcontext" class="multiple"></div>
+            <div id="tinyselectcontext"></div>
         </div>
-        <script>
-            $.getJSON('misc/data/data.json').then(function(data) {
-                tinyselect('#tinyselectcontext', {
-                    item: {
-                        data: data,
-                        value: [3, 5]
-                    },
-                    result: {
-                        multi: true
-                    }
-                });
-            });
-        </script>
     </body>
+    <script>
+        $.getJSON('misc/data/data.json').then(function(data) {
+            tinyselect('#tinyselectcontext', data);
+        });
+    </script>
 
 </html>

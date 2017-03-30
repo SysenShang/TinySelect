@@ -16,7 +16,7 @@
     },
     {
         "title": "没有下拉指示器的单选",
-        "file": "single-without-dropdown.html"
+        "file": "single-without-arrow.html"
     }, {
         "title": "单选设置初始值",
         "file": "single-value.html"

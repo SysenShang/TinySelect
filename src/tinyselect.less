@@ -28,7 +28,9 @@
     height: auto;
     color: #333;
     z-index: 99;
-    .border-box();
+    -moz-box-sizing: content-box;
+    -webkit-box-sizing: content-box;
+    box-sizing: content-box;
     &:not(.tinyselect-mode-list) {
         display: none;
         position: absolute;
@@ -81,7 +83,7 @@
             }
         }
     }
-    
+
     .tinyselect-header {
         border-bottom: 1px solid #CCC;
         .tinyselect-filter {
@@ -182,7 +184,7 @@
             cursor: initial;
         }
         &.tinyselect-context-with-arrow .tinyselect-context-arrow {
-            background-color: lighten(#CFCFCF, 10%);
+            background-color: lighten(#CFCFCF, 16%);
         }
     }
     &:not(.tinyselect-context-readonly) {
