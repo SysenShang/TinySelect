@@ -40,6 +40,11 @@
      */
     var FALSE = !1;
 
+    /**
+     * 给 null值一个别名
+     */
+    var NULL = null;
+
     //-------------------CSS样式名称定义
     /**
      * 根样式 tinyselect，这个样式不存在，写这里只是用来拼接
@@ -264,7 +269,7 @@
      */
     var defaultOption = {
         // 附加的样式类名称
-        css: null,
+        css: NULL,
         // 组件是否是只读的
         readonly: FALSE,
         // 显示模式，可以设置的值为： dropdown(默认下拉模式), list(列表模式), popup(弹出模式)
@@ -384,15 +389,13 @@
             this.selector.push(' ');
             return this.css(css);
         },
-        visible: function(css) {
-            this.css(css);
-            this.selector.push(selector_visible);
-            return this.done();
+        visible: function() {
+            return this.addon(selector_visible)
+                .done();
         },
-        first: function(css) {
-            this.css(css);
-            this.selector.push(':first');
-            return this.done();
+        first: function() {
+            return this.addon(':first')
+                .done();
         },
         addon: function(addon) {
             if(addon) {
@@ -426,7 +429,7 @@
      */
     var asyncCall = function(fn, args) {
         win.setTimeout(function() {
-            fn.apply(null, args);
+            fn.apply(NULL, args);
         }, 0);
     };
 
@@ -470,7 +473,7 @@
         for(var i = 0; i < instanceSet.length; i++) {
             instance = instanceSet[i];
             // 找到了通过这个context创建的下拉组件，返回这个下拉组件
-            if(instance.context === context) {
+            if(instance.context.get(0) === context) {
                 return instance;
             }
         }
@@ -520,7 +523,7 @@
             }
 
             // DOM上下文
-            ts.context = context;
+            ts.context = $(context);
 
             // 渲染上下文DOM元素
             renderContext(ts);
@@ -528,14 +531,14 @@
             // 初始化事件集合
             ts.events = {};
 
-            // 创建结构
+            // 创建DOM结构
             createDOM(ts);
 
             // 绑定事件
             bindEvent(ts);
 
             // 渲染项
-            renderItems(ts, function(data) {
+            ts.load(ts.option.item.data, function(data) {
                 // 这里搞了个回调，以在所有项渲染完成后触发组件的ready 事件
                 emitEvent(ts, evt_ready, {
                     data: data
@@ -555,12 +558,14 @@
          * @return {TinySelect} 当前实例
          */
         on: function(eventType, handler) {
+            var ts = this;
+
             // 检查事件是否支持 不支持就在console提示，然后返回
             if(evt_supported.indexOf(eventType) === -1) {
                 console.warn(evt_notSupportedMsg + ':' + eventType);
-                return this;
+                return ts;
             }
-            var events = this.events;
+            var events = ts.events;
 
             // 已经绑定过这个事件，则将新的处理函数追加到事件数组里面
             if(own.call(events, eventType)) {
@@ -570,7 +575,7 @@
                 events[eventType] = [handler];
             }
 
-            return this;
+            return ts;
         },
 
         /**
@@ -582,26 +587,29 @@
          * @return {TinySelect} 当前实例
          */
         off: function(eventType, handler) {
+            var ts = this;
+
             // 检查事件是否支持 不支持就直接返回
             if(evt_supported.indexOf(eventType) === -1) {
-                return this;
+                return ts;
             }
 
-            var events = this.events;
+            var events = ts.events;
             // 如果没有绑定过这个事件，直接返回
             if(!own.call(events, eventType)) {
-                return this;
+                return ts;
             }
+            var event = events[eventType];
 
             // 这个函数是否存在
-            var index = events[eventType].indexOf(handler);
+            var index = event.indexOf(handler);
 
             // 这个函数是绑定上的，干掉它！！
             if(index !== -1) {
-                events[eventType].splice(index, 1);
+                event.splice(index, 1);
             }
 
-            return this;
+            return ts;
         },
 
         /**
@@ -611,20 +619,21 @@
          * @return {TinySelect} 当前实例
          */
         show: function(callback) {
-            var dom = this.dom;
-            var mode = this.option.mode;
+            var ts = this;
+            var dom = ts.dom;
+            var mode = ts.option.mode;
 
             // 列表模式调用无效
             if(mode === mode_list) {
-                return this;
+                return ts;
             }
             if(mode === mode_popup) {
                 // 弹出模式时，要显示mask
-                this.mask.show();
+                ts.mask.show();
             }
 
             // 设置下拉框的显示位置
-            fixPosition($(this.context), dom, this.option);
+            fixPosition(ts.context, dom, ts.option);
 
             // 用fadein搞个动画
             dom.fadeIn('fast', function() {
@@ -632,13 +641,15 @@
                 // 下拉框显示出来后，如果过滤框可见，则将焦点放到过滤框中
                 dom.find(Selector.build(css_header).sub(css_filter).visible()).focus();
 
+                fixSize(ts);
+
                 // 显示后，调用回调函数
                 if(callback) {
-                    callback.call(this);
+                    callback.call(ts);
                 }
             });
 
-            return this;
+            return ts;
         },
         /**
          * 隐藏下拉框
@@ -647,21 +658,24 @@
          * @return {TinySelect} 当前实例
          */
         hide: function(callback) {
+            var ts = this;
+            var mode = ts.option.mode;
+
             // 列表模式调用无效
-            if(this.option.mode === mode_list) {
-                return this;
+            if(mode === mode_list) {
+                return ts;
             }
             // 弹出模式时，隐藏的是mask层
-            var target = this.option.mode === mode_dropdown ? this.dom : this.mask;
+            var target = mode === mode_dropdown ? ts.dom : ts.mask;
 
             // 用fadeout搞个隐藏时候的动画
             target.fadeOut('fast', function() {
                 if(callback) {
-                    callback.call(this);
+                    callback.call(ts);
                 }
             });
 
-            return this;
+            return ts;
         },
 
         /**
@@ -714,7 +728,7 @@
          */
         value: function(val, trigger) {
             var ts = this;
-            
+
             // 没有传参数，这时候就是获取值
             if(arguments.length === 0) {
                 return getValue(ts);
@@ -744,7 +758,6 @@
          */
         load: function(data, callback) {
             var ts = this;
-            var dom = ts.dom;
 
             // 将新的数据绑定到组件上
             // 为了保持数据的纯洁性，用clone创建数据的副本来玩
@@ -752,12 +765,6 @@
 
             // 渲染下拉项
             renderItems(ts, callback);
-
-            // 如果container的高度超出了父容器的高度，那么就将container的高度设置为与父容器一致
-            var parentHeight = dom.parent().height();
-            if(dom.height() > parentHeight) {
-                dom.height(parentHeight);
-            }
 
             return ts;
         },
@@ -778,9 +785,9 @@
             if(readonly) {
                 ts.hide();
                 // 添加只读样式
-                $(ts.context).addClass(css_readonly);
+                ts.context.addClass(css_readonly);
             } else {
-                $(ts.context).removeClass(css_readonly);
+                ts.context.removeClass(css_readonly);
             }
 
             ts.option.readonly = readonly;
@@ -794,7 +801,7 @@
     /**
      * 默认配置项，可以在加载时修改
      */
-    TinySelect.defaultOption = defaultOption;
+    TinySelect.defaults = defaultOption;
 
     /**
      * 渲染上下文DOM元素里面的DOM，创建结果容器和下拉指示元素
@@ -805,7 +812,7 @@
             return;
         }
 
-        var context = $(ts.context);
+        var context = ts.context;
 
         // 添加存放选中结果的容器
         context.addClass(css_context)
@@ -839,7 +846,7 @@
      */
     function createDOM(ts) {
         var option = ts.option;
-        var context = $(ts.context);
+        var context = ts.context;
 
         // 给下拉容器添加css类
         var container = createElement(css_container).addClass(option.css).addClass(css_root + '-mode-' + option.mode);
@@ -1283,7 +1290,7 @@
      * @param {TinySelect} ts 当前的TinySelect实例
      */
     function bindShowBoxEvent(ts) {
-        var context = $(ts.context);
+        var context = ts.context;
 
         var dom = ts.dom;
 
@@ -1315,6 +1322,7 @@
                 return;
             }
             fixPosition(context, dom, ts.option);
+            fixSize(ts);
         });
     }
 
@@ -1364,6 +1372,24 @@
         }
     }
 
+    function fixSize(ts) {
+        var dom = ts.dom;
+
+        // 修正容器大小
+        // 如果container的高度超出了父容器的高度，那么就将container的高度设置为与父容器一致
+        var parentHeight = dom.parent().height();
+        if(dom.height() > parentHeight) {
+            dom.height(parentHeight);
+
+            // 让数据项出现滚动条
+            ts.box.height(parentHeight -
+                // header 高度
+                (ts.header.is(selector_visible) ? ts.header.height() : 0) -
+                // footer 高度
+                (ts.footer.is(selector_visible) ? ts.footer.height() : 0));
+        }
+    }
+
     /**
      * 向页面绑定隐藏下拉框的事件，这个事件会被绑定到 window 对象上
      * 当鼠标点击不在上下文DOM元素和下拉框，以及他们的子元素时，就会隐藏下拉框
@@ -1371,7 +1397,7 @@
      * @param {TinySelect} ts 当前的TinySelect实例
      */
     function bindHideBoxEvent(ts) {
-        var context = $(ts.context);
+        var context = ts.context;
 
         var dom = ts.dom;
         // 给window对象绑定点击事件，以关闭下拉组件
@@ -1432,7 +1458,7 @@
     function bindDefaultItemEvent(ts) {
         // 找出存放选中结果的容器元素对象
         // .tinyselect-context-result:first
-        var result = $(ts.context).find(Selector.build(css_contextResult).first());
+        var result = ts.context.find(Selector.build(css_contextResult).first());
 
         // 选中数量的元素对象
         var count = getSelectedCount(ts);
@@ -1731,7 +1757,7 @@
         var items = getItemsFromDom(ts);
 
         // 清空选中结果
-        $(ts.context).find(Selector.build(css_contextResult).first()).empty();
+        ts.context.find(Selector.build(css_contextResult).first()).empty();
 
         // 对多选选中项的清除
         if(ts.option.result.multi) {

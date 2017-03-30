@@ -100,7 +100,7 @@ var ts = tinyselect('#tinyselectcontext', {
 
 ## 选项/Option
 
-默认的创建下拉组件选项。这里列出了所有可用的项，这些项会被附加到`TinySelect`上面,可以通过修改`tinyselect.defaultOption` 来改变这些默认配置，如： `tinyselect.defaultOption.result.multi = true` 这样的写法会让页面内之后创建的下拉组件都默认启用多选模式。
+创建下拉组件的默认选项。这里列出了所有可用的项，这些项会被附加到`TinySelect`上面,可以通过修改`tinyselect.defaults` 来改变这些默认配置，如： `tinyselect.defaults.result.multi = true` 这样的写法会让页面内之后创建的下拉组件都默认启用多选模式。
 
 ```javascript
 {
