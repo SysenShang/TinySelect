@@ -7,7 +7,7 @@
  * @依赖: jQuery 1.8.0及更高版本
  * @浏览器支持: 不支持IE8及更低版本
  * @QQ群: 187786345 (Javascript爱好者)
- * 
+ *
  * @param {Window} win 窗口对象
  * @param {jQuery} $ jQuery别名
  */
@@ -75,6 +75,11 @@
      * 下拉框容器的样式名称： tinyselect-container
      */
     var css_container = css_root + '-container';
+
+    /**
+     * 下拉框容器mask层的样式名称： tinyselect-container
+     */
+    var css_mask = css_root + '-mask';
 
     /**
      * 以列表模式显示  tinyselect-list-mode
@@ -266,16 +271,10 @@
         mode: mode_dropdown,
         // 下拉框容器的样式
         style: {
-            // 咋？弹出位置搞个绝对定位你有意见？
-            position: 'absolute',
             // 这个行高是必须的，覆盖这些样式时，需要注意，
             // 其值需要是可以转换成整数的类型，因为下拉的项会使用这个作为默认的行高
             // 例外的情况：设置了项的行高(即下面的 item.line-height)
-            lineHeight: '28px',
-            // 默认不显示下拉框
-            display: 'none',
-            // 设置默认的层次深度为 99
-            zIndex: 99
+            lineHeight: '28px'
         },
         // 下拉框的头部
         header: {
@@ -421,7 +420,7 @@
 
     /**
      * 使用异步调用，这是通过  setTimeout 来假装的
-     * 
+     *
      * @param {Function} fn 要异步调用的函数
      * @param {Array} args 函数参数的数组
      */
@@ -442,7 +441,7 @@
      * 创建Div元素，附加class属性
      * @param {String} className 样式类列表
      * @param {String} [tagName='div'] 标签名称，默认为 div
-     * @return {jQueryObject} 创建的元素
+     * @return {jQuery} 创建的元素
      */
     var createElement = function(className, tagName) {
         return $('<' + (tagName || 'div') + ' class="' + className + '">');
@@ -450,7 +449,7 @@
 
     /**
      * 根据上下文DOM元素初始化下拉框，如果已经初始化过了，那就返回对应的实例对象
-     * 
+     *
      * @param {jQuery|String|HtmlElement} selector 用来创建下拉组件的上下文DOM元素
      * @param {Object|Array} option 选项或数据
      * @return {TinySelect} 下拉实例
@@ -494,7 +493,7 @@
 
         /**
          * 初始化函数，用来创建创建下拉实例
-         * 
+         *
          * @param {HtmlElement} context 下拉的上下文DOM元素，下拉将在这个元素的上方或下方显示
          * @param  {Object|Array} option 选项或数据
          * @return {TinySelect} 新的实例
@@ -550,7 +549,7 @@
         /**
          * 绑定事件到TinySelect上，如果想要使用.off(eventType, handler)来解除绑定，
          * 那么就需要传入函数名，而不能使用匿名函数
-         * 
+         *
          * @param {String} eventType 事件类型
          * @param {Function} handler 事件处理函数，
          * @return {TinySelect} 当前实例
@@ -577,7 +576,7 @@
         /**
          * 解除通过 .on(eventType, handler) 绑定的事件处理函数。
          * 注意：如果handler是匿名函数，那么此操作无效
-         * 
+         *
          * @param {String} eventType 事件类型
          * @param {Function} handler 要解除的事件处理函数
          * @return {TinySelect} 当前实例
@@ -607,19 +606,24 @@
 
         /**
          * 显示下拉框
-         * 
+         *
          * @param {Function} callback 显示完成后的回调函数
          * @return {TinySelect} 当前实例
          */
         show: function(callback) {
             var dom = this.dom;
+            var mode = this.option.mode;
 
             // 列表模式调用无效
-            if(this.option.aslist) {
+            if(mode === mode_list) {
                 return this;
             }
+            if(mode === mode_popup) {
+                // 弹出模式时，要显示mask
+                this.mask.show();
+            }
 
-            // 设置下拉框的显示位置（以上下文为基线）
+            // 设置下拉框的显示位置
             fixPosition($(this.context), dom, this.option);
 
             // 用fadein搞个动画
@@ -638,18 +642,20 @@
         },
         /**
          * 隐藏下拉框
-         * 
+         *
          * @param {Function} callback 隐藏完成后的回调函数
          * @return {TinySelect} 当前实例
          */
         hide: function(callback) {
             // 列表模式调用无效
-            if(this.option.aslist) {
+            if(this.option.mode === mode_list) {
                 return this;
             }
+            // 弹出模式时，隐藏的是mask层
+            var target = this.option.mode === mode_dropdown ? this.dom : this.mask;
 
             // 用fadeout搞个隐藏时候的动画
-            this.dom.fadeOut('fast', function() {
+            target.fadeOut('fast', function() {
                 if(callback) {
                     callback.call(this);
                 }
@@ -660,7 +666,7 @@
 
         /**
          * 过滤下拉项，指定要过滤的关键字或过滤函数
-         * 
+         *
          * @param {String|Function} keyOrFn 过滤的关键字或函数
          * @param {Boolean} toggle 是否隐藏未命中项，显示命中项
          * @return {Array} 筛选命中的项组成的数组
@@ -701,7 +707,7 @@
         },
         /**
          * 设置或获取下拉的选中值
-         * 
+         *
          * @param {any} val 配置的item.valueField字段的值，可以是单个值(单选)或数组(多选)。不传时获取值
          * @param {Boolean} trigger 是否引发事件，默认为 false
          * @return {any} 返回值或实例
@@ -729,7 +735,7 @@
         },
         /**
          * 使用指定的数据重新渲染下拉项
-         * 
+         *
          * @param {Array} data 数据项
          * @param {Function} callback 渲染完成后的回调函数
          * @return {TinySelect} 下拉组件实例
@@ -745,7 +751,7 @@
         },
         /**
          * 设置或获取下拉组件是否是只读的
-         * 
+         *
          * @param {Boolean} readonly 设置是否只读，若不传这个参数，那就是获取只读状态
          * @return {Boolean|TinySelect} 获取状态时返回是否只读的状态，设置值时返回组件实例
          */
@@ -814,7 +820,7 @@
 
     /**
      * 创建下拉的所有DOM结构
-     * 
+     *
      * @param {TinySelect} ts 当前的TinySelect实例
      */
     function createDOM(ts) {
@@ -822,35 +828,36 @@
         var context = $(ts.context);
 
         // 给下拉容器添加css类
-        var container = createElement(css_container).addClass(option.css);
+        var container = createElement(css_container).addClass(option.css).addClass(css_root + '-mode-' + option.mode);
 
         // 以列表模式显示
         switch(option.mode) {
-            case mode_list
-            // 添加列表模式的样式类
-            container.addClass(css_listMode);
-            // 此时就不会再使用绝对定位，而是替换context的位置
-            // 同时，也不会应用样式 width height position
-            // 如果context的父级只有context一个元素，那就设置宽度为auto
-            // 这样可以避免滚动条出现后挡住下拉组件右侧
-            option.style.width = context.siblings().length ? context.width():
-                'auto';
+            case mode_list:
+                // 添加列表模式的样式类
+                container.addClass(css_listMode);
+                // 此时就不会再使用绝对定位，而是替换context的位置
+                // 同时，也不会应用样式 width height position
+                // 如果context的父级只有context一个元素，那就设置宽度为auto
+                // 这样可以避免滚动条出现后挡住下拉组件右侧
+                option.style.width = context.siblings().length ? context.width() :
+                    'auto';
                 option.style.height = context.height() || 'auto';
-                option.style.display = 'block';
                 var position = context.css('position');
                 option.style.position = /static/i.test(position) ? 'relative' : position;
 
                 context.hide().after(container);
                 break;
             case mode_dropdown:
-            case mode_popup:
+                // 默认的下拉模式
                 // 把下拉组件添加到 document.body
                 $(document.body).append(container);
                 break;
+            case mode_popup:
+                // 弹出模式时，添加mask层
+                var mask = ts.mask = createElement(css_mask);
+                $(document.body).append(mask.append(container));
+                break;
         }
-        if(option.aslist) {
-
-        } else {}
 
         // 给下拉框添加样式
         ts.dom = container.css(option.style);
@@ -869,10 +876,10 @@
 
     /**
      * 渲染下拉框的头部DOM
-     * 
+     *
      * @param {TinySelect} ts 当前的TinySelect实例
      * @param {any} option 选项，创建下拉组件时传入的参数与默认参数合并得到
-     * @return {jQueryObject} header的jquery对象
+     * @return {jQuery} header的jquery对象
      */
     function renderHeader(ts, option) {
         // 创建  header
@@ -894,10 +901,10 @@
 
     /**
      * 当配置了过滤可见时，渲染过滤器
-     * 
+     *
      * @param {TinySelect} ts 当前的TinySelect实例
      * @param {Object} option 选项，创建下拉组件时传入的参数与默认参数合并得到
-     * @return {jQueryObject} 过滤框的jquery对象
+     * @return {jQuery} 过滤框的jquery对象
      */
     function renderFilter(ts, option) {
         // 创建过滤
@@ -925,10 +932,10 @@
 
     /**
      * 渲染下拉框的底部
-     * 
+     *
      * @param {TinySelect} ts 当前的TinySelect实例
      * @param {Object} option 选项，创建下拉组件时传入的参数与默认参数合并得到
-     * @return {jQueryObject} footer的jquery对象
+     * @return {jQuery} footer的jquery对象
      */
     function renderFooter(ts, option) {
         // 创建下拉底部DOM元素
@@ -969,11 +976,11 @@
 
     /**
      * 多选时，使用这个函数来渲染底部的全选/选中项等显示
-     * 
+     *
      * @param {TinySelect} ts 当前的TinySelect实例
      * @param {Object} option 创建下拉组件时传入的参数与默认参数合并得到
-     * @param {jQueryObject} left footer左侧的容器的jQuery对象
-     * @param {jQueryObject} right footer右侧的容器的jQuery对象
+     * @param {jQuery} left footer左侧的容器的jQuery对象
+     * @param {jQuery} right footer右侧的容器的jQuery对象
      */
     function renderMultiSelectFooter(ts, option, left, right) {
         // 创建一个 checkbox
@@ -984,7 +991,7 @@
         left.append($('<label>').append(checkbox).append('全选'));
 
         // 给checkbox绑定change事件，以在checkbox被点击，勾选状态改变后执行选中/取消选中
-        // 项的选中状态，通过是否包含css类 tinyselect-item-selected 指示 
+        // 项的选中状态，通过是否包含css类 tinyselect-item-selected 指示
         // 这里只会操作可见的下拉项，以适用于过滤后的数据项批量操作
         checkbox.change(function() {
             // 判断此时的checkbox是否是被勾选的
@@ -1032,12 +1039,12 @@
 
     /**
      * 渲染下拉的项
-     * 
+     *
      * @param {TinySelect} ts 当前的TinySelect实例
      * @param {Function} callback 所有项渲染完成后的回调函数
      */
     function renderItems(ts, callback) {
-        // 先从下拉框里面找出存放下拉项的容器 
+        // 先从下拉框里面找出存放下拉项的容器
         // 选择器  .tinyselect-item
         var box = ts.box;
 
@@ -1137,14 +1144,14 @@
 
     /**
      * 渲染指定范围的下拉项
-     * 
+     *
      * @param {TinySelect} ts 当前的TinySelect实例
-     * @param {jQueryObject} box 下拉项容器的jQuery对象
+     * @param {jQuery} box 下拉项容器的jQuery对象
      * @param {Object} option ts.option.item 的配置
      * @param {Function} callback 所有项渲染完成后的回调函数
      * @param {Number} start 开始渲染的索引
      * @param {Number} count 渲染的数量
-     * @return  {jQueryObject} 渲染的第一项，这个返回给调用函数，调用函数根据这一项来计算每一项的高度
+     * @return  {jQuery} 渲染的第一项，这个返回给调用函数，调用函数根据这一项来计算每一项的高度
      */
     function renderSpecifiedItems(ts, box, option, callback, start, count) {
         // 这个变量用来保存一个下拉项的DOM对象，最后会被作为这个函数的返回值，
@@ -1229,7 +1236,7 @@
 
     /**
      * 给下拉绑定事件
-     * 
+     *
      * @param {TinySelect} ts 当前的TinySelect实例
      */
     function bindEvent(ts) {
@@ -1257,7 +1264,7 @@
 
     /**
      * 绑定事件：用来控制何时应该显示/隐藏下拉框
-     * 
+     *
      * @param {TinySelect} ts 当前的TinySelect实例
      */
     function bindShowBoxEvent(ts) {
@@ -1288,7 +1295,8 @@
         // 给下拉组件绑定window.resize事件，以在改变浏览器大小时，下拉组件可以停留在正确的位置上
         $(win).resize(function() {
             // 为了不那么影响性能，如果下拉组件没有显示出来，就啥也不做
-            if(!dom.is(selector_visible)) {
+            // 列表模式也啥也不做
+            if(!dom.is(selector_visible) || ts.option.mode === mode_list) {
                 return;
             }
             fixPosition(context, dom, ts.option);
@@ -1297,42 +1305,54 @@
 
     /**
      * 修正下拉框的位置，这个在初始化以及window大小变化时调用
-     * 
-     * @param {jQueryObject} context 初始化下拉的上下文DOM元素的jQuery对象
-     * @param {jQueryObject} dom 下拉框的jQuery对象
+     *
+     * @param {jQuery} context 初始化下拉的上下文DOM元素的jQuery对象
+     * @param {jQuery} dom 下拉框的jQuery对象
      */
     function fixPosition(context, dom, option) {
         // 用jquery获取到context的偏移量
         var pos = context.offset();
+        var mode = option.mode;
+        var domheight = dom.height();
+        var winheight = $(win).height();
 
-        // 下拉组件默认会出现在context的下方
-        // 但是如果下方没有足够的空间放下这货
-        // 就放到上方
-        // 要是上方也没有足够的空间呢？  那就与我无关了
-        // 这里的 +2  -2  是防止下拉组件与context的边框重叠
-        // 重叠的话可能context就会被挡住一点，特别是边框，看起来会很怪
-        if($(win).height() - pos.top - context.height() < dom.height()) {
-            // 放到上方
-            pos.top = pos.top - dom.height() - 2;
-        } else {
-            // 放在下方
-            pos.top = pos.top + context.height() + 2;
+        if(mode === mode_dropdown) {
+            // 下拉组件默认会出现在context的下方
+            // 但是如果下方没有足够的空间放下这货
+            // 就放到上方
+            // 要是上方也没有足够的空间呢？  那就与我无关了
+            // 这里的 +2  -2  是防止下拉组件与context的边框重叠
+            // 重叠的话可能context就会被挡住一点，特别是边框，看起来会很怪
+            if(winheight - pos.top - context.height() < domheight) {
+                // 放到上方
+                pos.top = pos.top - domheight - 2;
+            } else {
+                // 放在下方
+                pos.top = pos.top + context.height() + 2;
+            }
+
+            // 设置下拉组件的显示位置
+            dom.css({
+                left: pos.left,
+                top: pos.top,
+                // 如果选项中设置了组件的宽度，就用设置的宽度
+                // 如果没有设置，就让下拉组件与context宽度相同
+                width: option.style.width || context.width()
+            });
+        } else if(mode === mode_popup) {
+            // 弹出模式时，水平居中，垂直方向上，top为剩下空间的1/3
+            // 这里通过设置 mask的padding来实现
+            dom.parent().css({
+                paddingTop: (winheight - domheight) / 3,
+                paddingLeft: ($(win).width() - dom.width()) / 2
+            });
         }
-
-        // 设置下拉组件的显示位置
-        dom.css({
-            left: pos.left,
-            top: pos.top,
-            // 如果选项中设置了组件的宽度，就用设置的宽度
-            // 如果没有设置，就让下拉组件与context宽度相同
-            width: option.style.width || context.width()
-        });
     }
 
     /**
      * 向页面绑定隐藏下拉框的事件，这个事件会被绑定到 window 对象上
      * 当鼠标点击不在上下文DOM元素和下拉框，以及他们的子元素时，就会隐藏下拉框
-     * 
+     *
      * @param {TinySelect} ts 当前的TinySelect实例
      */
     function bindHideBoxEvent(ts) {
@@ -1367,7 +1387,7 @@
 
     /**
      * 绑定下拉项的点击事件
-     * 
+     *
      * @param {TinySelect} ts 当前的TinySelect实例
      */
     function bindItemClickEvent(ts) {
@@ -1391,7 +1411,7 @@
     /**
      * 绑定下拉项的默认事件。这里绑定了默认的select和unselect事件，
      * 以实现选中结果的填充效果
-     * 
+     *
      * @param {TinySelect} ts 当前的TinySelect实例
      */
     function bindDefaultItemEvent(ts) {
@@ -1467,7 +1487,7 @@
 
     /**
      * 绑定键盘事件，这里主要是绑定一下方向键移动时高亮下拉项的事件
-     * 
+     *
      * @param {TinySelect} ts 下拉组件实例
      */
     function bindKeyboardEvent(ts) {
@@ -1528,8 +1548,8 @@
 
     /**
      * 把滚动条定位到指定的下拉项位置
-     * 
-     * @param {jQueryObject} item 滚动到的下拉项的jquery对象
+     *
+     * @param {jQuery} item 滚动到的下拉项的jquery对象
      */
     function scrollToItem(item) {
         var box = item.parent();
@@ -1545,11 +1565,11 @@
 
     /**
      * 渲染多选时的结果项并返回新项
-     * 
+     *
      * @param {TinySelect} ts 当前的TinySelect实例
      * @param {String} text 要在一个结果项显示的内容
      * @param {Number} index 这一项的索引
-     * @return {jQueryObject} 新创建的项的jQuery对象
+     * @return {jQuery} 新创建的项的jQuery对象
      */
     function renderMultiSelectResultItem(ts, text, index) {
         // 列表模式不渲染这个
@@ -1583,10 +1603,10 @@
 
     /**
      * 发出下拉项事件
-     * 
+     *
      * @param {TinySelect} ts 当前的TinySelect实例
      * @param {String} eventType 事件类型
-     * @param {jQueryObject} item 发生事件的下拉项的jQuery对象
+     * @param {jQuery} item 发生事件的下拉项的jQuery对象
      */
     function emitItemEvent(ts, eventType, item) {
         var target = item.get(0);
@@ -1599,8 +1619,8 @@
     }
 
     /**
-     * 
-     * 
+     *
+     *
      * @param {TinySelect} ts 当前的TinySelect实例
      * @param {String} eventType 事件类型
      * @param {Object} arg 附加的事件参数
@@ -1623,7 +1643,7 @@
     /**
      * 获取选中的项的值，值是根据  option.item.valueField 来取的
      * 单选返回一个值，多选返回数组
-     * 
+     *
      * @param {TinySelect} ts 当前的TinySelect实例
      * @return {any} 选中的值
      */
@@ -1649,7 +1669,7 @@
 
     /**
      * 设置选中的值
-     * 
+     *
      * @param {TinySelect} ts 当前的TinySelect实例
      * @param {any} value 要设置的选中的值，根据单选和多选的不同传入数组和非数组
      * @param {Boolean} trigger 是否触发事件
@@ -1688,7 +1708,7 @@
 
     /**
      * 清除选中的所有项
-     * 
+     *
      * @param {TinySelect} ts 当前的TinySelect实例
      */
     function clearSelection(ts) {
@@ -1728,9 +1748,9 @@
 
     /**
      * 设置某一项的选中状态
-     * 
+     *
      * @param {TinySelect} ts 当前的TinySelect实例
-     * @param {jQueryObject} item 要设置状态的项
+     * @param {jQuery} item 要设置状态的项
      * @param {Boolean} toggle 是否要切换选中的状态，默认为false
      * @param {Boolean} trigger 是否触发事件
      */
@@ -1743,17 +1763,17 @@
         /**
          * 切换状态，即：
          * 如果是选中，那么就切换成未选中；反之亦然。
-         * 
+         *
          * 那么，就能得到：
          * 1 单选时： 如果这个项已经选中了，无论是否需要切换状态，
          *  都直接返回，因为不能再次选中一个已经选中的项;
          *  而在未选中时，无论是否需要切换状态，都要把已经选中的项取消选中，
          *  再选中当前项。
-         * 
+         *
          * 2 多选时：如果这个项已经选中，并且不需要切换状态，那么就啥也不做，直接返回，
          *  如果需要切换状态，那么就取消选中这一项；
-         *  
-         *  
+         *
+         *
          */
 
         if(!multi) {
@@ -1796,9 +1816,9 @@
 
     /**
      * 选中指定的项
-     * 
+     *
      * @param {TinySelect} ts 当前的TinySelect实例
-     * @param {jQueryObject} item 要选择的项
+     * @param {jQuery} item 要选择的项
      * @param {Boolean} trigger 是否触发事件
      */
     function selectItem(ts, item, trigger) {
@@ -1815,9 +1835,9 @@
 
     /**
      * 取消选中指定的项
-     * 
+     *
      * @param {TinySelect} ts 当前的TinySelect实例
-     * @param {jQueryObject} item 要取消选择的项
+     * @param {jQuery} item 要取消选择的项
      * @param {Boolean} trigger 是否触发事件
      */
     function deselectItem(ts, item, trigger) {
@@ -1834,32 +1854,32 @@
 
     /**
      * 获取显示下拉项总数量的元素
-     * 
+     *
      * @param {TinySelect} ts 当前的TinySelect实例
-     * @return {jQueryObject} 根据选择器选择到的jQuery对象集合
+     * @return {jQuery} 根据选择器选择到的jQuery对象集合
      */
     function getTotalCount(ts) {
         // 构建选择器： .tinyselect-footer-right .tinyselect-count-total
-        return ts.footer.find(Selector.build(css_footerRight).sub(css_totalCount));
+        return ts.footer.find(Selector.build(css_footerRight).sub(css_totalCount).done());
     }
 
     /**
      * 获取显示选中项数量的元素
-     * 
+     *
      * @param {TinySelect} ts 当前的TinySelect实例
-     * @return {jQueryObject} 根据选择器选择到的jQuery对象集合
+     * @return {jQuery} 根据选择器选择到的jQuery对象集合
      */
     function getSelectedCount(ts) {
         // 构建选择器： .tinyselect-footer-right .tinyselect-count-selected
-        return ts.footer.find(Selector.build(css_footerRight).sub(css_selectedCount));
+        return ts.footer.find(Selector.build(css_footerRight).sub(css_selectedCount).done());
     }
 
     /**
      * 通过jQuery从下拉框直接查找下拉的所有项
-     * 
+     *
      * @param {TinySelect} ts 当前的TinySelect实例
      * @param {String} addon 附加的样式
-     * @return {jQueryObject} 根据选择器选择到的jQuery对象集合
+     * @return {jQuery} 根据选择器选择到的jQuery对象集合
      */
     function getItemsFromDom(ts, addon) {
         // 构建选择器: .tinyselect-box .tinyselect-item<addon>
@@ -1868,9 +1888,9 @@
 
     /**
      * 设置下拉项的数量
-     * 
+     *
      * @param {Object} option 实例配置项
-     * @param {jQueryObject} element 要显示下拉项数量的元素的jquery对象
+     * @param {jQuery} element 要显示下拉项数量的元素的jquery对象
      */
     function setTotalCount(option, element) {
         setCount(element, option.footer.totalTpl);
@@ -1878,9 +1898,9 @@
 
     /**
      * 设置选中项的数量
-     * 
+     *
      * @param {Object} option 实例配置项
-     * @param {jQueryObject} element 要显示选中数量的元素的jquery对象
+     * @param {jQuery} element 要显示选中数量的元素的jquery对象
      */
     function setSelectedCount(option, element) {
         setCount(element, option.footer.selectedTpl);
@@ -1888,8 +1908,8 @@
 
     /**
      * 设置数量。设置下拉项总数和选中数都会调用这个函数
-     * 
-     * @param {jQueryObject} element 要设置数量的元素的jquery对象
+     *
+     * @param {jQuery} element 要设置数量的元素的jquery对象
      * @param {String} tpl 使用的模板字符串
      */
     function setCount(element, tpl) {
@@ -1898,8 +1918,8 @@
 
     /**
      * 使用jQuery.fn.data获取数据
-     * 
-     * @param {jQueryObject} element 要获取数据的元素的jquery对象
+     *
+     * @param {jQuery} element 要获取数据的元素的jquery对象
      * @return {Object} 保存的数据
      */
     function getData(element) {
@@ -1908,8 +1928,8 @@
 
     /**
      * 使用jQuery.fn.data保存数据
-     * 
-     * @param {jQueryObject} element 要设置数据的元素的jquery对象
+     *
+     * @param {jQuery} element 要设置数据的元素的jquery对象
      * @param {Object} value 要保存的数据
      */
     function setData(element, value) {

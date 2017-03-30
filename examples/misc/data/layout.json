@@ -11,6 +11,10 @@
         "file": "grid.html"
     },
     {
+        "title": "弹出模式",
+        "file": "popup.html"
+    },
+    {
         "title": "没有下拉指示器的单选",
         "file": "single-without-dropdown.html"
     }, {

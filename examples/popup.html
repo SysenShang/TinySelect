@@ -5,10 +5,9 @@
     <meta charset="UTF-8">
     <script src="../lib/jquery-1.10.2.min.js"></script>
     <script src="../src/tinyselect.js"></script>
-    <link rel="stylesheet" type="text/css" href="../dist/tinyselect.css" />
-    <link rel="stylesheet" type="text/css" href="misc/css/example.css" />
-    <link rel="stylesheet" type="text/css" href="misc/css/listmode.css" />
-    <link rel="stylesheet" type="text/css" href="../lib/codemirror/codemirror.css" />
+    <link rel="stylesheet" type="text/css" href="../dist/tinyselect.css"/>
+    <link rel="stylesheet" type="text/css" href="misc/css/example.css"/>
+    <link rel="stylesheet" type="text/css" href="../lib/codemirror/codemirror.css"/>
     <script src="../lib/codemirror/codemirror.js"></script>
     <script src="../lib/codemirror/mode/javascript/javascript.js"></script>
     <script src="../lib/codemirror/mode/css/css.js"></script>
@@ -16,30 +15,33 @@
 </head>
 
 <body>
-    <var type="less" src="misc/less/listmode.less"></var>
-    <div class="tinyselectcontext-container">
-        <div id="tinyselectcontext"></div>
-    </div>
-</body>
+<div class="tinyselectcontext-container">
+    <div id="tinyselectcontext"></div>
+</div>
 <script>
-    $.getJSON('misc/data/data.json').then(function(data) {
+    $.getJSON('misc/data/data.json').then(function (data) {
         tinyselect('#tinyselectcontext', {
-            aslist: true,
-            item: {
-                data: data
+            mode: 'popup',
+            style:{
+                width:160
             },
-            header: {
-                style: {
+            item: {
+                data: data,
+                visible: 0
+            },
+            header:{
+                style:{
                     display: 'none'
                 }
             },
-            footer: {
-                style: {
+            footer:{
+                style:{
                     display: 'none'
                 }
             }
         });
     });
 </script>
+</body>
 
 </html>
