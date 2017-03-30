@@ -200,21 +200,6 @@
 
     //-----------------使用jQuery选择器时用到的字符串
     /**
-     * css 选择器用到的"."符号
-     */
-    var selector_dot = '.';
-
-    /**
-     * css 选择器用到的" ."符号
-     */
-    var selector_spacedot = ' .';
-
-    /**
-     * css 选择器用到的":first"符号
-     */
-    var selector_first = ':first';
-
-    /**
      * css 选择器用到的":visible"符号
      */
     var selector_visible = ':visible';
@@ -248,6 +233,26 @@
     var str_placeholder = '%s';
 
     /**
+     * 显示模式-下拉
+     */
+    var mode_dropdown = 'dropdown';
+
+    /**
+     * 显示模式-列表
+     */
+    var mode_list = 'list';
+
+    /**
+     * 弹出模式
+     */
+    var mode_popup = 'popup';
+
+    /**
+     * 支持的显示模式
+     */
+    var support_mode = [mode_dropdown, mode_list, mode_popup];
+
+    /**
      * 默认的创建下拉组件选项
      * 这里列出了所有可用的项
      * 这些项会被附加到 TinySelect上面,可以通过  TinySelect.xxx 来修改这些默认配置
@@ -257,8 +262,8 @@
         css: null,
         // 组件是否是只读的
         readonly: FALSE,
-        // 是否以列表显示，true表示以列表模式显示，false以下拉模式显示
-        aslist: FALSE,
+        // 显示模式，可以设置的值为： dropdown(默认下拉模式), list(列表模式), popup(弹出模式)
+        mode: mode_dropdown,
         // 下拉框容器的样式
         style: {
             // 咋？弹出位置搞个绝对定位你有意见？
@@ -355,6 +360,56 @@
         }
     };
 
+    function Selector(css) {
+        this.selector = [];
+        this.css(css);
+    }
+
+    Selector.prototype = {
+        constructor: Selector,
+        css: function(css) {
+            if(css) {
+                this.selector.push('.' + css);
+            }
+            return this;
+        },
+        attr: function(key, val) {
+            if(arguments.length === 1) {
+                this.selector.push('[' + key + ']');
+            } else {
+                this.selector.push('[' + key + '=' + val + ']');
+            }
+            return this;
+        },
+        sub: function(css) {
+            this.selector.push(' ');
+            return this.css(css);
+        },
+        visible: function(css) {
+            this.css(css);
+            this.selector.push(selector_visible);
+            return this.done();
+        },
+        first: function(css) {
+            this.css(css);
+            this.selector.push(':first');
+            return this.done();
+        },
+        addon: function(addon) {
+            if(addon) {
+                this.selector.push(addon);
+            }
+            return this;
+        },
+        done: function(css) {
+            this.css(css);
+            return this.selector.join('');
+        }
+    };
+
+    Selector.build = function(css) {
+        return new Selector(css);
+    };
 
     //---------------------工具函数定义
 
@@ -371,7 +426,9 @@
      * @param {Array} args 函数参数的数组
      */
     var asyncCall = function(fn, args) {
-        win.setTimeout(fn, 0, args);
+        win.setTimeout(function() {
+            fn.apply(null, args);
+        }, 0);
     };
 
     /**
@@ -403,7 +460,7 @@
         var context = $(selector).get(0);
 
         // 取不到DOM对象，就放弃，不创建下拉组件了
-        if (!context) {
+        if(!context) {
             return;
         }
 
@@ -411,10 +468,10 @@
         var instance;
 
         // 遍历实例集合，看看有这个context有没有对应的下拉组件
-        for (var i = 0; i < instanceSet.length; i++) {
+        for(var i = 0; i < instanceSet.length; i++) {
             instance = instanceSet[i];
             // 找到了通过这个context创建的下拉组件，返回这个下拉组件
-            if (instance.context === context) {
+            if(instance.context === context) {
                 return instance;
             }
         }
@@ -448,7 +505,7 @@
 
             // 如果传的是一个数组，那么就使用默认的选项，
             // 并且将这个数组设为下拉的数据源
-            if ($.isArray(option)) {
+            if($.isArray(option)) {
                 ts.option = clone(defaultOption, {
                     item: {
                         data: option
@@ -457,15 +514,17 @@
             } else {
                 // 传的是对象，那么合并选项参数
                 ts.option = clone(defaultOption, option);
+                var mode = ts.option.mode || mode_dropdown;
+                if(support_mode.indexOf(mode) === -1) {
+                    throw new Error('Render mode "' + mode + '" is not supported,\nhere is the valid modes:' + support_mode.join());
+                }
             }
 
             // DOM上下文
             ts.context = context;
 
-            if (!ts.option.aslist) {
-                // 渲染上下文DOM元素
-                renderContext(ts);
-            }
+            // 渲染上下文DOM元素
+            renderContext(ts);
 
             // 初始化事件集合
             ts.events = {};
@@ -498,14 +557,14 @@
          */
         on: function(eventType, handler) {
             // 检查事件是否支持 不支持就在console提示，然后返回
-            if (evt_supported.indexOf(eventType) === -1) {
+            if(evt_supported.indexOf(eventType) === -1) {
                 console.warn(evt_notSupportedMsg + ':' + eventType);
                 return this;
             }
             var events = this.events;
 
             // 已经绑定过这个事件，则将新的处理函数追加到事件数组里面
-            if (own.call(events, eventType)) {
+            if(own.call(events, eventType)) {
                 events[eventType].push(handler);
             } else {
                 // 还没有绑定过这个事件，创建一个包含这个事件处理函数的数组
@@ -525,13 +584,13 @@
          */
         off: function(eventType, handler) {
             // 检查事件是否支持 不支持就直接返回
-            if (evt_supported.indexOf(eventType) === -1) {
+            if(evt_supported.indexOf(eventType) === -1) {
                 return this;
             }
 
             var events = this.events;
             // 如果没有绑定过这个事件，直接返回
-            if (!own.call(events, eventType)) {
+            if(!own.call(events, eventType)) {
                 return this;
             }
 
@@ -539,7 +598,7 @@
             var index = events[eventType].indexOf(handler);
 
             // 这个函数是绑定上的，干掉它！！
-            if (index !== -1) {
+            if(index !== -1) {
                 events[eventType].splice(index, 1);
             }
 
@@ -556,7 +615,7 @@
             var dom = this.dom;
 
             // 列表模式调用无效
-            if (this.option.aslist) {
+            if(this.option.aslist) {
                 return this;
             }
 
@@ -567,11 +626,10 @@
             dom.fadeIn('fast', function() {
 
                 // 下拉框显示出来后，如果过滤框可见，则将焦点放到过滤框中
-                dom.find(selector_dot + css_header +
-                    selector_spacedot + css_filter + selector_visible).focus();
+                dom.find(Selector.build(css_header).sub(css_filter).visible()).focus();
 
                 // 显示后，调用回调函数
-                if (callback) {
+                if(callback) {
                     callback.call(this);
                 }
             });
@@ -586,13 +644,13 @@
          */
         hide: function(callback) {
             // 列表模式调用无效
-            if (this.option.aslist) {
+            if(this.option.aslist) {
                 return this;
             }
 
             // 用fadeout搞个隐藏时候的动画
             this.dom.fadeOut('fast', function() {
-                if (callback) {
+                if(callback) {
                     callback.call(this);
                 }
             });
@@ -622,7 +680,7 @@
 
                 // 如果传了过滤器，那就调用哇，这里会设置过滤器的this对象为这一项的DOM对象，同时会将这项的数据作为一个参数传入
                 // 过滤器函数的返回值决定了这一项是否会被命中（true）
-                if (isfn ? keyOrFn.call(this, data) :
+                if(isfn ? keyOrFn.call(this, data) :
                     // 传的是字符串，直接看项的显示文字里面有没有这个字符串
                     item.text().indexOf(keyOrFn.toString()) !== -1) {
                     result.push({
@@ -631,10 +689,10 @@
                     });
 
                     // 如果要显示状态（根据过滤是否命中来显示和隐藏这一项）
-                    if (toggle) {
+                    if(toggle) {
                         item.show();
                     }
-                } else if (toggle) {
+                } else if(toggle) {
                     item.hide();
                 }
             });
@@ -650,7 +708,7 @@
          */
         value: function(val, trigger) {
             // 没有传参数，这时候就是获取值
-            if (arguments.length === 0) {
+            if(arguments.length === 0) {
                 return getValue(this);
             }
 
@@ -692,12 +750,12 @@
          * @return {Boolean|TinySelect} 获取状态时返回是否只读的状态，设置值时返回组件实例
          */
         readonly: function(readonly) {
-            if (arguments.length === 0) {
+            if(arguments.length === 0) {
                 return this.option.readonly;
             }
 
             // 如果设置为只读，那么就先隐藏下拉框
-            if (readonly) {
+            if(readonly) {
                 this.hide();
                 // 添加只读样式
                 $(this.context).addClass(css_readonly);
@@ -722,6 +780,11 @@
      * 渲染上下文DOM元素里面的DOM，创建结果容器和下拉指示元素
      */
     function renderContext(ts) {
+        // 不是列表模式时，总是渲染上下文
+        if(ts.option.mode === mode_list) {
+            return;
+        }
+
         var context = $(ts.context);
 
         // 添加存放选中结果的容器
@@ -729,12 +792,12 @@
             .append(createElement(css_contextResult));
 
         // 初始化时如果设置了只读属性，那么给上下文元素添加只读的样式类
-        if (ts.option.readonly) {
+        if(ts.option.readonly) {
             context.addClass(css_readonly);
         }
 
         // 多选的话就不添加下拉指示器
-        if (ts.option.result.multi) {
+        if(ts.option.result.multi) {
             return;
         }
 
@@ -744,11 +807,10 @@
 
         // 如果context是静态布局，那么修改为相对布局
         // 因为单选时要显示那个下拉指示器，这个指示器是用的绝对定位
-        if (/static/i.test(context.css('position'))) {
+        if(/static/i.test(context.css('position'))) {
             context.css('position', 'relative');
         }
     }
-
 
     /**
      * 创建下拉的所有DOM结构
@@ -763,24 +825,32 @@
         var container = createElement(css_container).addClass(option.css);
 
         // 以列表模式显示
-        if (option.aslist) {
+        switch(option.mode) {
+            case mode_list
             // 添加列表模式的样式类
             container.addClass(css_listMode);
             // 此时就不会再使用绝对定位，而是替换context的位置
             // 同时，也不会应用样式 width height position
             // 如果context的父级只有context一个元素，那就设置宽度为auto
             // 这样可以避免滚动条出现后挡住下拉组件右侧
-            option.style.width = context.siblings().length ? context.width() : 'auto';
-            option.style.height = context.height() || 'auto';
-            option.style.display = 'block';
-            var position = context.css('position');
-            option.style.position = /static/i.test(position) ? 'relative' : position;
+            option.style.width = context.siblings().length ? context.width():
+                'auto';
+                option.style.height = context.height() || 'auto';
+                option.style.display = 'block';
+                var position = context.css('position');
+                option.style.position = /static/i.test(position) ? 'relative' : position;
 
-            context.hide().after(container);
-        } else {
-            // 把下拉组件添加到 document.body
-            $(document.body).append(container);
+                context.hide().after(container);
+                break;
+            case mode_dropdown:
+            case mode_popup:
+                // 把下拉组件添加到 document.body
+                $(document.body).append(container);
+                break;
         }
+        if(option.aslist) {
+
+        } else {}
 
         // 给下拉框添加样式
         ts.dom = container.css(option.style);
@@ -815,7 +885,7 @@
         header.append(renderFilter(ts, option));
 
         // 调用自定义的头部渲染函数
-        if (option.header.render) {
+        if(option.header.render) {
             option.header.render.call(header, option.item.data);
         }
 
@@ -840,7 +910,7 @@
 
             var val = input.val();
 
-            if (/^change$/i.test(filter.trigger) ?
+            if(/^change$/i.test(filter.trigger) ?
                 input.data('last') === val : e.keyCode !== 13) {
                 return;
             }
@@ -885,12 +955,12 @@
 
         // 如果配置了多选，那么就添加一个用于全选的checkbox元素
         // 同时会添加一个表示已经选中项数量的元素
-        if (option.result.multi) {
+        if(option.result.multi) {
             renderMultiSelectFooter(ts, option, left, right);
         }
 
         // 如果定义了底部渲染器，现在是时候调用了
-        if (option.footer.render) {
+        if(option.footer.render) {
             option.footer.render.call(footer, option.data);
         }
 
@@ -925,10 +995,10 @@
                 item = $(item);
 
                 // 如果此时checkbox是勾选的  那就是要设置可见的项为选中状态了
-                if (checked) {
+                if(checked) {
 
                     // 对已经选中的项，当然啥也不做
-                    if (item.hasClass(css_selected)) {
+                    if(item.hasClass(css_selected)) {
                         return;
                     }
 
@@ -941,7 +1011,7 @@
                 // 代码执行到这里，就表示checkbox是没有被勾选的，这时候就要把可见的项设置为未选中状态
 
                 // 当前这一项本来就没有被选中，那啥也不做
-                if (!item.hasClass(css_selected)) {
+                if(!item.hasClass(css_selected)) {
                     return;
                 }
 
@@ -978,7 +1048,7 @@
 
         // 如果可见项的数量不是数字或是负数，那么设置成0
         // 你要给我搞怪乱填，那我就按我的方式来处理了
-        if (isNaN(visibleCount) || visibleCount < 0) {
+        if(isNaN(visibleCount) || visibleCount < 0) {
             visibleCount = 0;
         }
 
@@ -997,24 +1067,24 @@
         ts.dom.removeClass(css_empty);
 
         // 获取到用来显示总数量项数的元素的对象
-        var total = getTotalCount(ts);
+        var totalElement = getTotalCount(ts);
 
         // 设置元素数量显示值
         // 这一步只是把数量值绑定到元素上了：通过 $().data(xxx)的方式
-        setData(total, length);
+        setData(totalElement, length);
 
         // 显示总数量
-        setTotalCount(ts.option, total);
+        setTotalCount(ts.option, totalElement);
 
         // 没有数据
-        if (!length) {
+        if(!length) {
             // 显示设置的空数据表示文本
             box.append(ts.option.box.empty);
             // 给下拉添加没有数据的样式类
             ts.dom.addClass(css_empty);
 
             // 没有数据也要调用一下渲染完成的回调函数，做人要有礼貌
-            if (callback) {
+            if(callback) {
                 callback.call(ts, option.data);
             }
             return;
@@ -1027,17 +1097,17 @@
 
         // 如果可见项的数量大于等于数据项的数量，那么就让box的高度自己高兴吧
         // 当前  visibleCount为0也是这样
-        if (visibleCount === 0 || visibleCount >= length) {
+        if(visibleCount === 0 || visibleCount >= length) {
             return;
         }
 
         // 如果设置了container高度，就直接box高度了
-        if (!isNaN(parseInt(ts.dom.get(0).style.height))) {
+        if(!isNaN(parseInt(ts.dom.get(0).style.height))) {
             var boxHeight = ts.dom.height();
-            if (ts.header.is(selector_visible)) {
+            if(ts.header.is(selector_visible)) {
                 boxHeight -= ts.header.height();
             }
-            if (ts.footer.is(selector_visible)) {
+            if(ts.footer.is(selector_visible)) {
                 boxHeight -= ts.footer.height();
             }
             box.height(boxHeight);
@@ -1056,7 +1126,7 @@
         }
         // 这里分两次渲染，假装考虑性能问题
         // 渲染剩下的项（只在 visibleCount>0 并且 visibleCount > length时会执行到这里
-        if (option.async) {
+        if(option.async) {
             // 异步渲染剩下的项
             asyncCall(renderSpecifiedItems, [ts, box, option, callback, visibleCount]);
         } else {
@@ -1089,7 +1159,7 @@
         count = count || (items.length - start);
 
         // 开啥玩笑？起始位置还比数据长度大？等于也不行啊，索引是从0开始的哇
-        if (start >= items.length) {
+        if(start >= items.length) {
             return;
         }
 
@@ -1097,12 +1167,12 @@
         var end = start + count;
 
         // 如果结束渲染数据项的索引比数据的长度大，那就直接设置成数据的长度
-        if (end > items.length) {
+        if(end > items.length) {
             end = items.length;
         }
 
         // 来哇，循环数据项，并在下拉选项容器中添加DOM元素
-        for (var i = start; i < end; i++) {
+        for(var i = start; i < end; i++) {
             var data = items[i];
 
             // 创建一个下拉项的元素对象，并且使用 $().data() 把这一项的数据绑定到元素上
@@ -1132,25 +1202,25 @@
             box.append(item);
 
             // 只保存一个下拉项的DOM对象
-            if (!keep) {
+            if(!keep) {
                 keep = item;
             }
         }
 
         // 如果结束索引与数据项长度相同，表示所有的数据项都渲染完成了
-        if (end !== items.length) {
+        if(end !== items.length) {
             return keep;
         }
 
         // 所有下拉项渲染完成后要做的事
 
         // 根据配置设置默认的选中项
-        if (option.value) {
+        if(option.value) {
             ts.value(option.value, true);
         }
 
         // 调用下拉项渲染完成的回调函数
-        if (callback) {
+        if(callback) {
             callback.call(ts, items);
         }
 
@@ -1164,7 +1234,7 @@
      */
     function bindEvent(ts) {
         // 列表模式不会显示和隐藏下拉组件
-        if (!ts.option.aslist) {
+        if(!ts.option.aslist) {
             // 绑定下拉组件的显示事件
             // 这个是绑定到context上的，旨在点击context时显示下拉组件
             bindShowBoxEvent(ts);
@@ -1197,17 +1267,17 @@
 
         context.click(function(e) {
             // 如果是只读的，就不显示出来
-            if (ts.option.readonly) {
+            if(ts.option.readonly) {
                 return;
             }
 
             // 没有点上下文DOM元素或上下文DOM元素的子元素
-            if (!context.is(e.target) && context.find(e.target).length === 0) {
+            if(!context.is(e.target) && context.find(e.target).length === 0) {
                 return;
             }
 
             // 下拉是关闭的
-            if (!dom.is(selector_visible)) {
+            if(!dom.is(selector_visible)) {
                 // 就打开
                 ts.show();
             }
@@ -1218,7 +1288,7 @@
         // 给下拉组件绑定window.resize事件，以在改变浏览器大小时，下拉组件可以停留在正确的位置上
         $(win).resize(function() {
             // 为了不那么影响性能，如果下拉组件没有显示出来，就啥也不做
-            if (!dom.is(selector_visible)) {
+            if(!dom.is(selector_visible)) {
                 return;
             }
             fixPosition(context, dom, ts.option);
@@ -1241,7 +1311,7 @@
         // 要是上方也没有足够的空间呢？  那就与我无关了
         // 这里的 +2  -2  是防止下拉组件与context的边框重叠
         // 重叠的话可能context就会被挡住一点，特别是边框，看起来会很怪
-        if ($(win).height() - pos.top - context.height() < dom.height()) {
+        if($(win).height() - pos.top - context.height() < dom.height()) {
             // 放到上方
             pos.top = pos.top - dom.height() - 2;
         } else {
@@ -1274,19 +1344,19 @@
             var target = e.target;
 
             // 如果是点击了 context 或者 点击了下拉组件，啥也不做
-            if (context.is(target) || dom.is(target)) {
+            if(context.is(target) || dom.is(target)) {
                 return;
             }
 
             // 如果点击了 context的子元素或者 下拉组件的子元素，啥也不做
-            if (context.find(target).length || dom.find(target).length) {
+            if(context.find(target).length || dom.find(target).length) {
                 return;
             }
             // 这时候就可以考虑隐藏下拉组件了
 
             // 但是，如果下拉组件是不可见的，那也啥都不做
             // 难道这个不能节约一点性能？
-            if (!dom.is(selector_visible)) {
+            if(!dom.is(selector_visible)) {
                 return;
             }
 
@@ -1303,14 +1373,14 @@
     function bindItemClickEvent(ts) {
         // 给下拉组件的下拉项容器添加事件的委托 .tinyselect-box
         // 委托容器监听下拉项的点击事件  .tinyselect-item 
-        ts.box.delegate(selector_dot + css_item, 'click', function() {
+        ts.box.on('click', Selector.build(css_item).done(), function() {
             var item = $(this);
 
             // 下拉项被点击了，切换这个项的选中状态
             setItemValue(ts, item, TRUE, TRUE);
 
             // 如果是单选，就隐藏下拉组件，如果是多选，就啥也不做，即保持下拉组件的打开状态
-            if (ts.option.result.multi) {
+            if(ts.option.result.multi) {
                 return;
             }
 
@@ -1327,7 +1397,7 @@
     function bindDefaultItemEvent(ts) {
         // 找出存放选中结果的容器元素对象
         // .tinyselect-context-result:first
-        var result = $(ts.context).find(selector_dot + css_contextResult + selector_first);
+        var result = $(ts.context).find(Selector.build(css_contextResult).first());
 
         // 选中数量的元素对象
         var count = getSelectedCount(ts);
@@ -1350,7 +1420,7 @@
             text = !!render ? render.call(e.target, e.data) : text;
 
             // 如果是单选，直接将选中项的文本设置为结果的文本并返回
-            if (!multi) {
+            if(!multi) {
                 result.html(text);
                 return;
             }
@@ -1375,7 +1445,7 @@
 
         // 如果是单选，就不绑定取消选中的事件了
         // 因为这里的绑定是用于改变选中结果的，单选的结果不需要复杂的改变
-        if (!multi) {
+        if(!multi) {
             return;
         }
 
@@ -1384,8 +1454,7 @@
             // 点击项后，如果需要取消选中这一项，那么就把已经选中的结果从结果容器中移除
             // 移除的依据是元素的 data-tiny-index 属性
             // .tinyselect-result-item[data-tiny-index=n]:first
-            result.find(selector_dot + css_result +
-                    buildAttrSelector(str_indexAttr, e.index) + selector_first)
+            result.find(Selector.build(css_result).attr(str_indexAttr, e.index).first())
                 .remove();
 
             // 设置多选的选中项数量
@@ -1406,29 +1475,29 @@
         // 这里把键盘事件绑定到 window 对象上
         $(win).keydown(function(e) {
             // 如果下拉组件是隐藏的，就不处理这个
-            if (!ts.dom.is(selector_visible)) {
+            if(!ts.dom.is(selector_visible)) {
                 return;
             }
 
             // 找到一个已经具有高亮属性的元素
-            var old = ts.dom.find(selector_dot + css_itemHover + selector_first);
+            var old = ts.dom.find(Selector.build(css_itemHover).first());
             // 保存当前要高亮的元素的变量
             var now;
 
             // 下方向键
-            if (e.keyCode === 40) {
+            if(e.keyCode === 40) {
                 // 如果当前没有高亮的，就高亮第一项
-                if (old.length === 0) {
+                if(old.length === 0) {
                     now = getItemsFromDom(ts).eq(0);
                 } else {
                     // 当前有高亮的项，就高亮当前项的后一项
                     now = old.next();
                 }
-            } else if (e.keyCode === 38) {
+            } else if(e.keyCode === 38) {
                 // 上方向键
 
                 // 如果当前没有高亮的，就高亮第一项
-                if (old.length === 0) {
+                if(old.length === 0) {
                     now = getItemsFromDom(ts).eq(0);
                 } else {
                     // 当前有高亮的项，就高亮当前项的前一项
@@ -1438,7 +1507,7 @@
                 return;
             }
 
-            if (!now.length) {
+            if(!now.length) {
                 now = old;
             }
 
@@ -1451,7 +1520,7 @@
 
         // 每一项绑定  mouseover事件
         // 通过这个来添加和移除键盘方向键绑定上的样式名
-        ts.dom.delegate(selector_dot + css_item, 'mouseover', function() {
+        ts.dom.on('mouseover', Selector.build(css_item).done(), function() {
             $(this).addClass(css_itemHover).siblings().removeClass(css_itemHover);
         });
 
@@ -1464,7 +1533,7 @@
      */
     function scrollToItem(item) {
         var box = item.parent();
-        if (!/auto/i.test(box.css('overflowY'))) {
+        if(!/auto/i.test(box.css('overflowY'))) {
             box = box.parent();
         }
 
@@ -1484,7 +1553,7 @@
      */
     function renderMultiSelectResultItem(ts, text, index) {
         // 列表模式不渲染这个
-        if (ts.option.aslist) {
+        if(ts.option.aslist) {
             return;
         }
 
@@ -1501,13 +1570,12 @@
             // .tinyselect-item-selected[data-tiny-index]:first
             .append(createElement(css_resultLink, tag_span).click(function() {
                 // 如果是只读的，就不能操作
-                if (ts.option.readonly) {
+                if(ts.option.readonly) {
                     return;
                 }
 
                 // 取消选中这一项，并触发取消选中的事件 
-                deselectItem(ts, getItemsFromDom(ts,
-                    buildAttrSelector(str_indexAttr, index) + selector_first), TRUE);
+                deselectItem(ts, getItemsFromDom(ts, Selector.build().attr(str_indexAttr, index).first()), TRUE);
 
                 return FALSE;
             }));
@@ -1539,7 +1607,7 @@
      */
     function emitEvent(ts, eventType, arg) {
         // 如果没有绑定过这个事件的处理函数，则返回
-        if (!own.call(ts.events, eventType)) {
+        if(!own.call(ts.events, eventType)) {
             return;
         }
 
@@ -1564,18 +1632,17 @@
         var valueField = ts.option.item.valueField;
 
         // 单选
-        if (!ts.option.result.multi) {
+        if(!ts.option.result.multi) {
             // 单选的时候找到第一个选中的项就行了，所以加个 first 限定符
             // 这里也是假装考虑一下查询的性能
-            var item = getItemsFromDom(ts, selector_dot + css_selected + selector_first);
+            var item = getItemsFromDom(ts, Selector.build(css_selected).first());
 
             // 如果没有选中项就返回undefined，有选中项就返回选中项的 valueField 属性的值
             return item.length === 0 ? undefined : getData(item)[valueField];
         }
 
         // 多选  返回所有选中项的值组成的数组
-        return getItemsFromDom(ts,
-            selector_dot + css_selected).map(function(index, item) {
+        return getItemsFromDom(ts, Selector.build(css_selected).done()).map(function(index, item) {
             return getData($(item))[valueField];
         });
     }
@@ -1597,7 +1664,7 @@
         // 遍历下拉项，在传入的值数组中查找下拉项的 data 数据的 valueField 属性的值（即每项的数据的值）
         // 如果传入的值中存在这一项的值（即命中），就说明要选中这一项
         // 在单选时，只要命中一次，这个函数就返回了；而多选 会遍历所有项
-        for (var i = 0, items = getItemsFromDom(ts); i < items.length; i++) {
+        for(var i = 0, items = getItemsFromDom(ts); i < items.length; i++) {
             item = $(items[i]);
 
             // 是否命中
@@ -1605,7 +1672,7 @@
                 getData(item)[ts.option.item.valueField]) !== -1;
 
             // 没有命中就比较下一项了
-            if (!hit) {
+            if(!hit) {
                 continue;
             }
 
@@ -1613,7 +1680,7 @@
             setItemValue(ts, item, FALSE, trigger);
 
             // 如果是单选，就返回，不再检查后续的项了
-            if (!ts.option.result.multi) {
+            if(!ts.option.result.multi) {
                 return;
             }
         }
@@ -1629,13 +1696,13 @@
         var items = getItemsFromDom(ts);
 
         // 清空选中结果
-        $(ts.context).find(selector_dot + css_contextResult + selector_first).empty();
+        $(ts.context).find(Selector.build(css_contextResult).first()).empty();
 
         // 对多选选中项的清除
-        if (ts.option.result.multi) {
+        if(ts.option.result.multi) {
             // 根据样式类取消选中项
             // .tinyselect-item-selected
-            items.filter(selector_dot + css_selected).each(function(index, item) {
+            items.filter(Selector.build(css_selected).done()).each(function(index, item) {
                 // 取消选中项并触发  unselect 事件
                 deselectItem(ts, $(item), TRUE);
             });
@@ -1646,10 +1713,10 @@
         // 对单选的处理
 
         // 单选的话，只有一项选中，所在使用 first 来过滤
-        var item = items.filter(selector_dot + css_selected + selector_first);
+        var item = items.filter(Selector.build(css_selected).first());
 
         // 没有选中项，返回吧
-        if (!item.length) {
+        if(!item.length) {
             return;
         }
 
@@ -1689,18 +1756,18 @@
          *  
          */
 
-        if (!multi) {
+        if(!multi) {
             // 此项是选中的，返回
-            if (selected) {
+            if(selected) {
                 return;
             }
 
             // 此项未选中，那么
             // 获取上次选中的项，然后取消选中
-            var lastSelected = item.siblings(selector_dot + css_selected);
+            var lastSelected = item.siblings(Selector.build(css_selected).first());
 
             // 如果有选中的，那么先取消选中
-            if (lastSelected.length) {
+            if(lastSelected.length) {
                 // 取消选中上次选中的项
                 deselectItem(ts, lastSelected, trigger);
             }
@@ -1711,14 +1778,14 @@
             return;
         }
 
-        if (!selected) {
+        if(!selected) {
             // 此项未选中        那就选中这一项
             selectItem(ts, item, trigger);
             return;
         }
 
         // 如果此项已经是选中的，并且不需要切换状态，那么直接返回
-        if (!toggle) {
+        if(!toggle) {
             return;
         }
 
@@ -1739,7 +1806,7 @@
         item.addClass(css_selected);
 
         // 是否需要触发事件
-        if (trigger) {
+        if(trigger) {
 
             // 触发选中事件
             emitItemEvent(ts, evt_select, item);
@@ -1758,7 +1825,7 @@
         item.removeClass(css_selected);
 
         // 是否需要触发事件
-        if (trigger) {
+        if(trigger) {
 
             // 触发取消选中事件
             emitItemEvent(ts, evt_unselect, item);
@@ -1772,10 +1839,8 @@
      * @return {jQueryObject} 根据选择器选择到的jQuery对象集合
      */
     function getTotalCount(ts) {
-        // 构建选择器： .tinyselect-footer .tinyselect-footer-right .tinyselect-count-total
-        return ts.dom.find(selector_dot + css_footer +
-            selector_spacedot + css_footerRight +
-            selector_spacedot + css_totalCount);
+        // 构建选择器： .tinyselect-footer-right .tinyselect-count-total
+        return ts.footer.find(Selector.build(css_footerRight).sub(css_totalCount));
     }
 
     /**
@@ -1785,9 +1850,8 @@
      * @return {jQueryObject} 根据选择器选择到的jQuery对象集合
      */
     function getSelectedCount(ts) {
-        // 构建选择器： .tinyselect-footer .tinyselect-footer-right .tinyselect-count-selected
-        return ts.footer.find(selector_spacedot + css_footerRight +
-            selector_spacedot + css_selectedCount);
+        // 构建选择器： .tinyselect-footer-right .tinyselect-count-selected
+        return ts.footer.find(Selector.build(css_footerRight).sub(css_selectedCount));
     }
 
     /**
@@ -1799,18 +1863,7 @@
      */
     function getItemsFromDom(ts, addon) {
         // 构建选择器: .tinyselect-box .tinyselect-item<addon>
-        return ts.box.find(selector_spacedot + css_item + (addon || ''));
-    }
-
-    /**
-     * 构建[name=value]格式的CSS选择器
-     * 
-     * @param {String} name 属性名称
-     * @param {String} value 属性值
-     * @return {String} 选择器
-     */
-    function buildAttrSelector(name, value) {
-        return '[' + name + '=' + value + ']';
+        return ts.box.find(Selector.build(css_item).addon(addon).done());
     }
 
     /**
