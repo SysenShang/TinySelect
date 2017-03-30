@@ -3,28 +3,19 @@
 TinySelect 是一个以灵活为目标的WEB下拉组件。旨在通过灵活的接口和用法，适应各种不同的场景
 
 - 单选/多选
-
 - 提供过滤框以通过关键字简单过滤数据
-
 - 编程显示/隐藏下拉框
-
 - 编程过滤数据，可以是关键字或函数
-
 - 持`select`、`unselect`和`ready`事件
-
 - 支持设置初始值
-
 - 支持后加载数据/重新加载数据
-
 - 编程设置下拉组件只读属性
-
 - 丰富的初始化选项，并且可以通过选项设置样式
-
 - 提供多种渲染器的自定义支持，如：下拉项，header，footer和选中结果
-
 - 可以设置部分数据的显示模板
-
 - 支持数据项的异步渲染
+- 支持多种显示模式：下拉(dropdown, 默认)、列表(list)、弹出(popup)
+
 
 ## 快速上手/Quick Start
 
@@ -91,7 +82,7 @@ var ts = tinyselect('#tinyselectcontext', data);
 
 ```javascript
 var ts = tinyselect('#tinyselectcontext', {
-    css: 'custom-css-list',
+    css: 'custom-select-style',
     style:{
         width: 400
     },
@@ -103,7 +94,7 @@ var ts = tinyselect('#tinyselectcontext', {
     }
 });
 ```
-这里指定了自定义的样式类`custom-css-list`，这个类会被附加到下拉组件的顶层容器上，可以通过`.tinyselect-container.custom-css-list`这样的方式来重写样式。
+这里指定了自定义的样式类`custom-select-style`，这个类会被附加到下拉组件的顶层容器上，可以通过`.tinyselect-container.custom-select-style`这样的方式来重写样式。
 
 更多用法，请看[示例](https://hyjiacan.oschina.io/tinyselect/examples/)。
 
@@ -117,18 +108,15 @@ var ts = tinyselect('#tinyselectcontext', {
     css: null,
     // 组件是否是只读的
     readonly: false,
-    // 是否以列表显示，true表示以列表模式显示，false以下拉模式显示
-    aslist: FALSE,
+    // 显示模式，可以设置的值为： dropdown(默认下拉模式), list(列表模式), popup(弹出模式)
+    // 一般来说，在设置为 popup的时候， item.visible 的值应该设置为 0，以显示所有项 
+    mode: mode_dropdown,
     // 下拉框容器的样式
     style: {
-        // 咋？弹出位置搞个绝对定位你有意见？
-        position: 'absolute',
         // 这个行高是必须的，覆盖这些样式时，需要注意，
         // 其值需要是可以转换成整数的类型，因为下拉的项会使用这个作为默认的行高
         // 例外的情况：设置了项的行高(即下面的 item.line-height)
-        lineHeight: '28px',
-        // 默认不显示下拉框
-        display: 'none'
+        lineHeight: '28px'
     },
     // 下拉框的头部
     header: {
@@ -315,9 +303,15 @@ TinySelect 目前提供了三个事件：`select`, `unselect`, `ready`。
 - tinyselect-result-item 选中结果项
 - tinyselect-result-item-text 选中结果项的文本
 - tinyselect-result-item-link 选中结果项的移除按钮
-- tinyselect-context-with-dropdown 带有下拉指示器时候的样式
-- tinyselect-context-dropdown 下拉指示器
+- tinyselect-context-with-arrow 带有下拉指示器时候的样式
+- tinyselect-context-arrow 下拉指示器
 - tinyselect-readonly 下拉框处于只读模式的样式
+
+### 弹出框mask层
+
+> 仅在`popup`模式时存在
+
+- tinyselect-mask 弹出框的mask层，container的父级元素，默认以`fixed`撑满窗口
 
 ### 弹出框
 

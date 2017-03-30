@@ -1,47 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <script src="../lib/jquery-1.10.2.min.js"></script>
-    <script src="../src/tinyselect.js"></script>
-    <link rel="stylesheet" type="text/css" href="../dist/tinyselect.css"/>
-    <link rel="stylesheet" type="text/css" href="misc/css/example.css"/>
-    <link rel="stylesheet" type="text/css" href="../lib/codemirror/codemirror.css"/>
-    <script src="../lib/codemirror/codemirror.js"></script>
-    <script src="../lib/codemirror/mode/javascript/javascript.js"></script>
-    <script src="../lib/codemirror/mode/css/css.js"></script>
-    <script src="misc/js/source.js"></script>
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <script src="../lib/jquery-1.10.2.min.js"></script>
+        <script src="../src/tinyselect.js"></script>
+        <link rel="stylesheet" type="text/css" href="../dist/tinyselect.css" />
+        <link rel="stylesheet" type="text/css" href="misc/css/example.css" />
+        <link rel="stylesheet" type="text/css" href="../lib/codemirror/codemirror.css" />
+        <script src="../lib/codemirror/codemirror.js"></script>
+        <script src="../lib/codemirror/mode/javascript/javascript.js"></script>
+        <script src="../lib/codemirror/mode/css/css.js"></script>
+        <script src="misc/js/source.js"></script>
+    </head>
 
-<body>
-<div class="tinyselectcontext-container">
-    <div id="tinyselectcontext"></div>
-</div>
-<script>
-    $.getJSON('misc/data/data.json').then(function (data) {
-        tinyselect('#tinyselectcontext', {
-            mode: 'popup',
-            style:{
-                width:160
-            },
-            item: {
-                data: data,
-                visible: 0
-            },
-            header:{
-                style:{
-                    display: 'none'
+    <body>
+        <div class="tinyselectcontext-container">
+            <div id="tinyselectcontext"></div>
+        </div>
+        <script>
+            $.getJSON('misc/data/data.json').then(function(data) {
+                for(var i = 0; i < 40; i++) {
+                    data.push({
+                        id: 13 + i,
+                        text: 13 + i + '月'
+                    });
                 }
-            },
-            footer:{
-                style:{
-                    display: 'none'
-                }
-            }
-        });
-    });
-</script>
-</body>
+                tinyselect('#tinyselectcontext', {
+                    mode: 'popup',
+                    style: {
+                        width: 160
+                    },
+                    item: {
+                        data: data,
+                        visible: 0
+                    } //,
+                    //          header:{
+                    //              style:{
+                    //                  display: 'none'
+                    //              }
+                    //          },
+                    //          footer:{
+                    //              style:{
+                    //                  display: 'none'
+                    //              }
+                    //          }
+                });
+            });
+        </script>
+    </body>
 
 </html>

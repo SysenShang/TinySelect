@@ -52,19 +52,19 @@
     var css_context = css_root + '-context';
 
     /**
-     * 给创建下拉组件时传入的DOM对象需要包含下拉指示器时的样式类名称： tinyselect-context-with-dropdown
+     * 给创建下拉组件时传入的DOM对象需要包含下拉指示器时的样式类名称： tinyselect-context-with-arrow
      */
-    var css_contextWithDropdown = css_context + '-with-dropdown';
+    var css_contextWithArrow = css_context + '-with-arrow';
 
     /**
-     * 给创建下拉组件时传入的DOM对象里面存放结果的元素添加的样式类名称： tinyselect-result
+     * 给创建下拉组件时传入的DOM对象里面存放结果的元素添加的样式类名称： tinyselect-context-result
      */
     var css_contextResult = css_context + '-result';
 
     /**
-     * 给创建下拉组件时传入的DOM对象里面指示下拉的元素添加的样式类名称： tinyselect-dropdown
+     * 给创建下拉组件时传入的DOM对象里面指示下拉的元素添加的样式类名称： tinyselect-context-arrow
      */
-    var css_contextDropdown = css_context + '-dropdown';
+    var css_contextArrow = css_context + '-arrow';
 
     /**
      * 设置为只读时结果框的样式 tinyselet-context-readonly
@@ -713,15 +713,17 @@
          * @return {any} 返回值或实例
          */
         value: function(val, trigger) {
+            var ts = this;
+            
             // 没有传参数，这时候就是获取值
             if(arguments.length === 0) {
-                return getValue(this);
+                return getValue(ts);
             }
 
             // 传了参数，这时候是设置值
-            setValue(this, val, trigger);
+            setValue(ts, val, trigger);
 
-            return this;
+            return ts;
         },
         /**
          * 清除选中的项
@@ -741,13 +743,23 @@
          * @return {TinySelect} 下拉组件实例
          */
         load: function(data, callback) {
+            var ts = this;
+            var dom = ts.dom;
+
             // 将新的数据绑定到组件上
             // 为了保持数据的纯洁性，用clone创建数据的副本来玩
-            this.option.item.data = clone(data);
-            // 渲染下拉项
-            renderItems(this, callback);
+            ts.option.item.data = clone(data);
 
-            return this;
+            // 渲染下拉项
+            renderItems(ts, callback);
+
+            // 如果container的高度超出了父容器的高度，那么就将container的高度设置为与父容器一致
+            var parentHeight = dom.parent().height();
+            if(dom.height() > parentHeight) {
+                dom.height(parentHeight);
+            }
+
+            return ts;
         },
         /**
          * 设置或获取下拉组件是否是只读的
@@ -756,22 +768,24 @@
          * @return {Boolean|TinySelect} 获取状态时返回是否只读的状态，设置值时返回组件实例
          */
         readonly: function(readonly) {
+            var ts = this;
+
             if(arguments.length === 0) {
-                return this.option.readonly;
+                return ts.option.readonly;
             }
 
             // 如果设置为只读，那么就先隐藏下拉框
             if(readonly) {
-                this.hide();
+                ts.hide();
                 // 添加只读样式
-                $(this.context).addClass(css_readonly);
+                $(ts.context).addClass(css_readonly);
             } else {
-                $(this.context).removeClass(css_readonly);
+                $(ts.context).removeClass(css_readonly);
             }
 
-            this.option.readonly = readonly;
+            ts.option.readonly = readonly;
 
-            return this;
+            return ts;
         }
     };
 
@@ -808,8 +822,8 @@
         }
 
         // 单选时添加下拉指示器
-        context.addClass(css_contextWithDropdown)
-            .append(createElement(css_contextDropdown));
+        context.addClass(css_contextWithArrow)
+            .append(createElement(css_contextArrow));
 
         // 如果context是静态布局，那么修改为相对布局
         // 因为单选时要显示那个下拉指示器，这个指示器是用的绝对定位
@@ -1131,6 +1145,7 @@
             // 数据项的数量大于可见项数量时，设置容器高度为可见项数量
             box.height(visibleCount * h);
         }
+
         // 这里分两次渲染，假装考虑性能问题
         // 渲染剩下的项（只在 visibleCount>0 并且 visibleCount > length时会执行到这里
         if(option.async) {
