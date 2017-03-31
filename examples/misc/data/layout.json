@@ -1,61 +1,67 @@
-[{
+[
+    {
         "title": "单选",
-        "file": "single.html"
-    },
-    {
+        "file": "single.html",
+        "group": "单选"
+    }, {
         "title": "多选",
-        "file": "multiple.html"
-    },
-    {
+        "file": "multiple.html",
+        "group": "多选"
+    }, {
         "title": "网格式布局",
-        "file": "grid.html"
-    },
-    {
+        "file": "single-grid.html",
+        "group": "单选"
+    }, {
         "title": "弹出模式",
-        "file": "popup.html"
-    },
-    {
+        "file": "popup.html",
+        "group": "单选"
+    }, {
         "title": "没有下拉指示器的单选",
-        "file": "single-without-arrow.html"
+        "file": "single-without-arrow.html",
+        "group": "单选"
     }, {
         "title": "单选设置初始值",
-        "file": "single-value.html"
-    },
-    {
+        "file": "single-value.html",
+        "group": "单选"
+    }, {
         "title": "多选设置初始值",
-        "file": "multiple-value.html"
+        "file": "multiple-value.html",
+        "group": "多选"
     }, {
         "title": "单选只读模式",
-        "file": "single-readonly.html"
-    },
-    {
+        "file": "single-readonly.html",
+        "group": "单选"
+    }, {
         "title": "多选只读模式",
-        "file": "multiple-readonly.html"
+        "file": "multiple-readonly.html",
+        "group": "多选"
     }, {
         "title": "单选列表模式",
-        "file": "single-list.html"
-    },
-    {
+        "file": "single-list.html",
+        "group": "单选"
+    }, {
         "title": "多选列表模式",
-        "file": "multiple-list.html"
+        "file": "multiple-list.html",
+        "group": "多选"
     }, {
         "title": "单选列表模式(没有头部和底部)",
-        "file": "single-list-clean.html"
-    },
-    {
+        "file": "single-list-clean.html",
+        "group": "单选"
+    }, {
         "title": "表格模式",
-        "file": "single-table.html"
-    },
-    {
-        "title": "动态加载数据",
-        "file": "dynamic-load-data.html"
-    },
-    {
-        "title": "动态设置选中值",
-        "file": "dynamic-set-value.html"
-    },
-    {
+        "file": "single-table.html",
+        "group": "单选"
+    }, {
+        "title": "加载数据",
+        "file": "load-data.html",
+        "group": "单选"
+    }, {
+        "title": "设置选中值",
+        "file": "set-value.html",
+        "group": "多选"
+    }, {
         "title": "下拉项添加图标",
-        "file": "single-icon.html"
+        "file": "single-icon.html",
+        "group": "单选"
     }
 ]

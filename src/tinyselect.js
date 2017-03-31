@@ -137,6 +137,11 @@
     var css_box = css_root + '-box';
 
     /**
+     * 存放下拉框数据分组的样式名称： tinyselect-group
+     */
+    var css_group = css_root + '-group';
+
+    /**
      * 下拉框每一项元素的样式名称： tinyselect-item
      */
     var css_item = css_root + '-item';
@@ -346,6 +351,19 @@
             // 下拉项容器的样式
             style: {}
         },
+        // 数据项分组设置
+        group: {
+            // 分组值字段
+            // 设置此值时才会分组
+            valueField: false,
+            // 分组文本字段，不设置时使用 valueField
+            // 相同的 valueField 而 textField不同时，只会取第一个 textField的值
+            textField: false,
+            // 数据项不包含指定的 valueField字段时的分组名称
+            unknown: '未分组',
+            // 分组的渲染器
+            render: false
+        },
         // 下拉项
         item: {
             // 下拉项数据的数组，每一项需要对象结构的数据
@@ -455,9 +473,11 @@
 
     /**
      * 判断对象是否包含某个属性，搞个短的名称
-     * 通过  own.call(obj, name) 的方式调用
+     * 通过  own(obj, name) 的方式调用
      */
-    var own = Object.prototype.hasOwnProperty;
+    var own = function(obj, prop) {
+        return !obj || obj.hasOwnProperty(prop);
+    };
 
     /**
      * 使用异步调用，这是通过  setTimeout 来假装的
@@ -486,6 +506,15 @@
      */
     var createElement = function(className, tagName) {
         return $('<' + (tagName || 'div') + ' class="' + className + '">');
+    };
+
+    /**
+     * 合并数据，后面的数组会被合并到前面的数组中
+     * @param {Array} array 原始数组
+     * @param {Array} dataArray 这个数组里面的项会被追加到 array 的最后
+     */
+    var mergeArray = function(array, dataArray) {
+        Array.prototype.push.apply(array, dataArray);
     };
 
     /**
@@ -614,7 +643,7 @@
             var events = ts.events;
 
             // 已经绑定过这个事件，则将新的处理函数追加到事件数组里面
-            if(own.call(events, eventType)) {
+            if(own(events, eventType)) {
                 events[eventType].push(handler);
             } else {
                 // 还没有绑定过这个事件，创建一个包含这个事件处理函数的数组
@@ -642,7 +671,7 @@
 
             var events = ts.events;
             // 如果没有绑定过这个事件，直接返回
-            if(!own.call(events, eventType)) {
+            if(!own(events, eventType)) {
                 return ts;
             }
             var event = events[eventType];
@@ -1117,6 +1146,70 @@
     }
 
     /**
+     * 解析分组数据，根据指定的字段对数据进行分组
+     * @param {Array} data 原始数据
+     * @param {Object} group 分组的选项
+     * @return {Array} 处理后的数据
+     */
+    function resolveGroupData(data, group) {
+        var valueField = group.valueField;
+        // 没有设置 textField的话，就用 valueField 来作为 text
+        var textField = group.textField || valueField;
+
+        // 创建一个单独的数组用来作为未分组的项
+        var unknown = [{ _group_item_: TRUE, text: group.unknown }];
+
+        // 存放除了未分组的所有分组
+        var groups = {};
+
+        $.each(data, function() {
+            var item = this;
+            var hasValue = own(item, valueField);
+            var hasText = own(item, textField);
+            if(!hasValue) {
+                unknown.push(item);
+                return;
+            }
+
+            var val = item[valueField];
+
+            // 分组名称留空
+            var text = hasText ? item[textField] : '';
+
+            if(!own(groups, val)) {
+                groups[val] = {
+                    text: text,
+                    data: []
+                };
+            }
+
+            groups[val].data.push(item);
+        });
+
+        // 重新弄成数组
+        // 先取出所有的分组数据，将其搞成一条数组记录
+        // 然后再将下面的项追加到数组后面
+        // 重复 一直到结束
+        // 最后再将 unknown 的项加进去
+        var temp = [];
+
+        $.each(groups, function(key, groupData) {
+            temp.push({
+                _group_item_: TRUE,
+                key: key,
+                text: groupData.text
+            });
+            mergeArray(temp, groupData.data);
+        });
+
+        // 有个默认的分组项  判断>1才表示真的有未分组的项
+        if(unknown.length > 1) {
+            mergeArray(temp, unknown);
+        }
+        return temp;
+    }
+
+    /**
      * 渲染下拉的项
      *
      * @param {TinySelect} ts 当前的TinySelect实例
@@ -1126,11 +1219,13 @@
         // 先从下拉框里面找出存放下拉项的容器
         // 选择器  .tinyselect-item
         var box = ts.box;
-
-        var option = ts.option.item;
+        var option = ts.option;
+        var itemoption = option.item;
+        var data = itemoption.data;
+        var group = option.group;
 
         // 可见项的数量
-        var visibleCount = parseInt(option.visible);
+        var visibleCount = parseInt(itemoption.visible);
 
         // 如果可见项的数量不是数字或是负数，那么设置成0
         // 你要给我搞怪乱填，那我就按我的方式来处理了
@@ -1140,7 +1235,7 @@
 
         // 数据的长度
         // 防止没有设置这个data属性引发错误
-        var length = !option.data ? 0 : option.data.length;
+        var length = !data ? 0 : data.length;
 
         // 清空下拉项容器
         box.empty().height('auto');
@@ -1160,26 +1255,32 @@
         setData(totalElement, length);
 
         // 显示总数量
-        setTotalCount(ts.option, totalElement);
+        setTotalCount(option, totalElement);
 
         // 没有数据
         if(!length) {
             // 显示设置的空数据表示文本
-            box.append(ts.option.box.empty);
+            box.append(option.box.empty);
             // 给下拉添加没有数据的样式类
             ts.dom.addClass(css_empty);
 
             // 没有数据也要调用一下渲染完成的回调函数，做人要有礼貌
             if(callback) {
-                callback.call(ts, option.data);
+                callback.call(ts, data);
             }
             return;
+        }
+
+        // 处理分组
+        if(group.valueField) {
+            data = resolveGroupData(data, group);
+            length = data.length;
         }
 
         // 先渲染指定的数量 若visibleCount为0表示全部显示
         // 如果 visibleCount 为0，函数  renderSpecifiedItems 会渲染所有数据的
         // 您不用担心了
-        var item = renderSpecifiedItems(ts, box, option, callback, 0, visibleCount);
+        var item = renderSpecifiedItems(ts, box, itemoption, data, callback, 0, visibleCount);
 
         // 如果可见项的数量大于等于数据项的数量，那么就让box的高度自己高兴吧
         // 当前  visibleCount为0也是这样
@@ -1203,22 +1304,28 @@
             // 我想让box的高度=第一个下拉项的高度*visibleCount
 
             // 根据第一项来计算容器的理论高度： 行高+上下padding
-            var h = parseInt(item.css('lineHeight')) +
+            var itemHeight = parseInt(item.css('lineHeight')) +
                 parseInt(item.css('paddingTop')) +
                 parseInt(item.css('paddingBottom'));
 
-            // 数据项的数量大于可见项数量时，设置容器高度为可见项数量
-            box.height(visibleCount * h);
+            // 数据项的数量大于可见项数量时，设置容器高度为可见项数量的高度+分组高度（如果有分组）
+            var groupHeight = 0;
+            // 有分组
+            if(group.valueField) {
+                groupHeight = box.find(Selector.build(css_group).first()).height();
+            }
+
+            box.height(visibleCount * itemHeight + groupHeight);
         }
 
         // 这里分两次渲染，假装考虑性能问题
         // 渲染剩下的项（只在 visibleCount>0 并且 visibleCount > length时会执行到这里
-        if(option.async) {
+        if(itemoption.async) {
             // 异步渲染剩下的项
-            asyncCall(renderSpecifiedItems, [ts, box, option, callback, visibleCount]);
+            asyncCall(renderSpecifiedItems, [ts, box, itemoption, data, callback, visibleCount]);
         } else {
             // 同步渲染剩下的项
-            renderSpecifiedItems(ts, box, option, callback, 0);
+            renderSpecifiedItems(ts, box, itemoption, data, callback, 0);
         }
     }
 
@@ -1227,26 +1334,29 @@
      *
      * @param {TinySelect} ts 当前的TinySelect实例
      * @param {jQuery} box 下拉项容器的jQuery对象
-     * @param {Object} option ts.option.item 的配置
+     * @param {Object} itemoption ts.option.item 的配置
+     * @param {Array} alldata 要渲染的所有数据，这些数据可能是经过分组处理的
      * @param {Function} callback 所有项渲染完成后的回调函数
      * @param {Number} start 开始渲染的索引
      * @param {Number} count 渲染的数量
      * @return  {jQuery} 渲染的第一项，这个返回给调用函数，调用函数根据这一项来计算每一项的高度
      */
-    function renderSpecifiedItems(ts, box, option, callback, start, count) {
+    function renderSpecifiedItems(ts, box, itemoption, alldata, callback, start, count) {
         // 这个变量用来保存一个下拉项的DOM对象，最后会被作为这个函数的返回值，
         // renderItems函数会用到这个DOM对象，就在计算box高度那里
         var keep;
 
+        var groupOption = ts.option.group;
+
         // 所有的数据项对象
-        var items = option.data;
+        var originData = itemoption.data;
 
         // 这次要渲染的数据数量，如果没有设置或为0，就用数据的总长度-起始位置
         // 同时这里就处理了 visibleCount 为0的情况
-        count = count || (items.length - start);
+        count = count || (alldata.length - start);
 
         // 开啥玩笑？起始位置还比数据长度大？等于也不行啊，索引是从0开始的哇
-        if(start >= items.length) {
+        if(start >= alldata.length) {
             return;
         }
 
@@ -1254,13 +1364,24 @@
         var end = start + count;
 
         // 如果结束渲染数据项的索引比数据的长度大，那就直接设置成数据的长度
-        if(end > items.length) {
-            end = items.length;
+        if(end > alldata.length) {
+            end = alldata.length;
         }
 
         // 来哇，循环数据项，并在下拉选项容器中添加DOM元素
         for(var i = start; i < end; i++) {
-            var data = items[i];
+            var data = alldata[i];
+
+            // 是分组项
+            if(groupOption.valueField && data._group_item_) {
+                var group = createElement(css_group).html(data.text);
+                // 调用渲染器
+                if(groupOption.render) {
+                    group.append(groupOption.render.call(ts, group, data));
+                }
+                box.append(group);
+                continue;
+            }
 
             // 创建一个下拉项的元素对象，并且使用 $().data() 把这一项的数据绑定到元素上
             var item = setData(createElement(css_item), data);
@@ -1279,8 +1400,8 @@
 
             // 文本部分的渲染，如果有指定渲染器，那么就把渲染器的返回值作为文本的显示内容，
             // 如果没有指定渲染器，那么就把指定的 option.item.textField 指定的属性值作为文本内容
-            text.append(option.render ?
-                option.render.call(item, data, i, items) : data[option.textField]);
+            text.append(itemoption.render ?
+                itemoption.render.call(item, data, i, originData) : data[itemoption.textField]);
 
             // 给下拉项设置一个索引（添加属性 'data-tiny-index'）
             item.attr(str_indexAttr, i);
@@ -1295,20 +1416,20 @@
         }
 
         // 如果结束索引与数据项长度相同，表示所有的数据项都渲染完成了
-        if(end !== items.length) {
+        if(end !== alldata.length) {
             return keep;
         }
 
         // 所有下拉项渲染完成后要做的事
 
         // 根据配置设置默认的选中项
-        if(option.value) {
-            ts.value(option.value, true);
+        if(itemoption.value) {
+            ts.value(itemoption.value, true);
         }
 
         // 调用下拉项渲染完成的回调函数
         if(callback) {
-            callback.call(ts, items);
+            callback.call(ts, originData);
         }
 
         return keep;
@@ -1726,7 +1847,7 @@
      */
     function emitEvent(ts, eventType, arg) {
         // 如果没有绑定过这个事件的处理函数，则返回
-        if(!own.call(ts.events, eventType)) {
+        if(!own(ts.events, eventType)) {
             return;
         }
 
