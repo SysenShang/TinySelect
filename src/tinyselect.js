@@ -248,6 +248,11 @@
     var str_indexAttr = 'data-tiny-index';
 
     /**
+     * 分组标记的属性名称
+     */
+    var str_groupAttr = 'data-tiny-group';
+
+    /**
      * 字符串模板的占位符，这个在渲染下拉项数量时使用
      */
     var str_placeholder = '%s';
@@ -761,13 +766,53 @@
          * @return {Array} 筛选命中的项组成的数组
          */
         filter: function(keyOrFn, toggle) {
+            var ts = this;
             var result = [];
 
             // 判断是通过关键字过滤还是传入了自定义的过滤器（函数）
             var isfn = $.isFunction(keyOrFn);
 
-            // 取到所有下拉项的DOM，然后遍历过滤
-            getItemsFromDom(this).each(function(index, item) {
+            var groupThem = !!ts.option.group.valueField;
+
+            // 取到所有下拉项的DOM
+            var items = getItemsFromDom(ts);
+
+            // 所有的分组头
+            var groups = ts.dom.find(Selector.build(css_group).done());
+
+            // 逻辑说明：
+            // 每处理一项，就找到这一项所在组，然后将对应项的已经处理记录加1，即  ++handled
+            // 要是已经处理的项<分组中总项数  那么这一组就还没有处理完
+            // 不小于年 时候，表示这组的项已经处理完了，可以去搞分组头的显示或隐藏了
+
+            // 每组中已经过滤的项的数量
+            var groupHandledCount = {};
+
+            groups.each(function() {
+                var id = $(this).attr(str_groupAttr);
+                groupHandledCount[id] = {
+                    total: items.filter(Selector.build(css_item).attr(str_groupAttr, id).done()).length,
+                    handled: 0
+                };
+            });
+
+            function groupProxy(item) {
+                if(!groupThem) {
+                    return;
+                }
+
+                var groupid = $(item).attr(str_groupAttr);
+
+                var count = groupHandledCount[groupid];
+
+                if((++count.handled) < count.total) {
+                    return;
+                }
+
+                setGroupVisible(groups, items, groupid);
+            }
+            // 遍历过滤
+            items.each(function(index, item) {
                 item = $(item);
 
                 // 取到这一项的数据  数据是通过jQuery的 xx.data(str_data) 取到的
@@ -785,10 +830,14 @@
 
                     // 如果要显示状态（根据过滤是否命中来显示和隐藏这一项）
                     if(toggle) {
-                        item.show();
+                        item.slideDown(50, function() {
+                            groupProxy(this);
+                        });
                     }
                 } else if(toggle) {
-                    item.hide();
+                    item.slideUp(50, function() {
+                        groupProxy(this);
+                    });
                 }
             });
 
@@ -839,7 +888,12 @@
             ts.option.item.data = clone(data);
 
             // 渲染下拉项
-            renderItems(ts, callback);
+            renderItems(ts, function() {
+                fixSize(ts);
+                if(callback) {
+                    callback.call(ts, ts.option.item.data);
+                }
+            });
 
             return ts;
         },
@@ -1018,12 +1072,11 @@
                 win.clearTimeout(filter_handle);
                 filter_handle = 0;
             }
-            // 通过计算两次输入的时间差来决定是否触发事件
-            // 当某个键按下后超过 618 毫秒才触发事件
-            // 为啥618 ？  没听过黄金分割么？
 
             if(/^change$/i.test(filter.trigger) ?
-                input.data('last') === val : e.keyCode !== 13) {
+                // 按下非输入键 (不可见字符)不处理
+                ($.trim(String.fromCharCode(e.keyCode || e.which)) !== '' &&
+                    input.data('last') === val) : e.keyCode !== 13) {
                 return;
             }
 
@@ -1157,16 +1210,19 @@
         var textField = group.textField || valueField;
 
         // 创建一个单独的数组用来作为未分组的项
-        var unknown = [{ _group_item_: TRUE, text: group.unknown }];
+        var unknown = [{ _group_item_: TRUE, text: group.unknown, id: 0 }];
 
         // 存放除了未分组的所有分组
         var groups = {};
+
+        var groupid = 0;
 
         $.each(data, function() {
             var item = this;
             var hasValue = own(item, valueField);
             var hasText = own(item, textField);
             if(!hasValue) {
+                item._group_id_ = 0;
                 unknown.push(item);
                 return;
             }
@@ -1178,10 +1234,13 @@
 
             if(!own(groups, val)) {
                 groups[val] = {
+                    id: ++groupid,
                     text: text,
                     data: []
                 };
             }
+
+            item._group_id_ = groupid;
 
             groups[val].data.push(item);
         });
@@ -1195,6 +1254,7 @@
 
         $.each(groups, function(key, groupData) {
             temp.push({
+                id: groupData.id,
                 _group_item_: TRUE,
                 key: key,
                 text: groupData.text
@@ -1368,13 +1428,17 @@
             end = alldata.length;
         }
 
+        // 数据是不是需要分组
+        var groupThem = groupOption.valueField;
+
         // 来哇，循环数据项，并在下拉选项容器中添加DOM元素
         for(var i = start; i < end; i++) {
             var data = alldata[i];
 
             // 是分组项
-            if(groupOption.valueField && data._group_item_) {
-                var group = createElement(css_group).html(data.text);
+            if(groupThem && data._group_item_) {
+                var group = createElement(css_group)
+                    .html(data.text).attr(str_groupAttr, data.id);
                 // 调用渲染器
                 if(groupOption.render) {
                     group.append(groupOption.render.call(ts, group, data));
@@ -1405,7 +1469,10 @@
 
             // 给下拉项设置一个索引（添加属性 'data-tiny-index'）
             item.attr(str_indexAttr, i);
-
+            if(groupThem) {
+                // 添加分组属性
+                item.attr(str_groupAttr, data._group_id_);
+            }
             // 把新的下拉项追加到下拉项容器中
             box.append(item);
 
@@ -1557,11 +1624,16 @@
         // 修正容器大小
         // 如果container的高度超出了父容器的高度，那么就将container的高度设置为与父容器一致
         var parentHeight = dom.parent().height();
-        if(dom.height() > parentHeight) {
+
+        if(ts.option.mode !== mode_dropdown) {
+            dom.height(parentHeight);
+        }
+
+        if(dom.height() >= parentHeight) {
             dom.height(parentHeight);
 
             // 让数据项出现滚动条
-            ts.box.height(parentHeight -
+            ts.box.height(parentHeight - 8 -
                 // header 高度
                 (ts.header.is(selector_visible) ? ts.header.height() : 0) -
                 // footer 高度
@@ -2154,6 +2226,27 @@
      */
     function setData(element, value) {
         return element.data(str_data, value);
+    }
+
+    /**
+     * 设置分组头是否可见
+     * @param {jQuery} groups 所有分组头
+     * @param {jQuery} items 所有数据项
+     * @param {Strnig} groupid 分组id
+     */
+    function setGroupVisible(groups, items, groupid) {
+
+        var group = groups.filter(Selector.build()
+            .attr(str_groupAttr, groupid).done());
+
+        if(items.filter(Selector.build()
+                .attr(str_groupAttr, groupid).visible()).length === 0) {
+            // groupid 分组下没有可见的项了，隐藏这个分组头
+            group.hide();
+        } else {
+            // 有可见项，显示这个分组头
+            group.show();
+        }
     }
 
     /**

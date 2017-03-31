@@ -49,8 +49,8 @@
             </div>
         </div>
         <div class="container" id="content">
-            <div class="row">
-                <div class="col-md-4">
+            <div class="row full-height">
+                <div class="col-md-4 full-height">
                     <div id="example-list"></div>
                 </div>
                 <div class="col-md-8">
@@ -95,7 +95,8 @@
                         }
                     },
                     group: {
-                        valueField: 'group'
+                        valueField: 'group',
+                        unknown: '其它'
                     },
                     header: {
                         render: function(header) {
