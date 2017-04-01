@@ -123,9 +123,16 @@
                 });
 
                 $.getJSON('misc/data/layout.json').then(function(items) {
+                    var hash = window.location.hash.replace('#', '');
+                    if(!hash || items.every(function(item) {
+                            return item.file !== hash;
+                        })) {
+                        hash = 'basic-single.html';
+                    };
+                    
                     examples.load(items)
-                        .value(window.location.hash.replace('#', '') || 'single.html', true)
-                        .dom.find('.tinyselect-filter').focus();
+                        .value(hash, true)
+                        .header.find('.tinyselect-filter').focus();
                 });
             });
         </script>
