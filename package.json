@@ -1,12 +1,13 @@
 {
     "name": "tinyselect",
-    "version": "0.2.0",
-    "description": "一个灵活的WEB下拉组件",
+    "version": "0.3.0",
+    "description": "灵活的WEB下拉组件",
     "keywords": [
         "select",
         "combo",
         "dropdown",
-        "tinyselect"
+        "tinyselect",
+        "list"
     ],
     "homepage": "http://git.oschina.net/hyjiacan/TinySelect",
     "example": "http://hyjiacan.oschina.io/tinyselect",

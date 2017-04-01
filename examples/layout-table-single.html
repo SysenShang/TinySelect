@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
     <head>
-        <meta charset="utf-8" />
+        <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0" />
         <script src="../lib/jquery-1.10.2.min.js"></script>
         <script src="../src/tinyselect.js"></script>
@@ -22,19 +22,29 @@
         <script>
             $.getJSON('misc/data/data.json').then(function(data) {
                 tinyselect('#tinyselectcontext', {
-                    box: {
-                        layout: 'list', // 这是默认值，即不设置时也是这个值
+                    box:{
+                        layout: 'table'
                     },
                     item: {
                         data: data,
-                        // 设置所有项可见，这个属性可以阻止组件计算高度
-                        visible: 0
-                    },
-                    style: {
-                        width: 164
+                        visible: 5,
+                        render: function(data, index) {
+                            // 这里创建一点随机数来填充表格，在项目中可以显示数据的其它字段
+                            $(this).find('.tinyselect-item-before').text(index)
+                                .css('textAlign', 'center')
+                                .after('<div>' + getRandomNumber() + '</div>')
+                                .after('<div>' + getRandomNumber() + '</div>')
+                                .after('<div>' + getRandomNumber() + '</div>');
+
+                            return data.text;
+                        }
                     }
                 });
             });
+
+            function getRandomNumber() {
+                return Math.round(Math.random() * 1000);
+            }
         </script>
     </body>
 

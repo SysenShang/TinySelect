@@ -1,5 +1,5 @@
 ﻿/**
- * TinySelect 一个灵活的下拉组件
+ * TinySelect 灵活的下拉组件
  * @作者: hyjiacan
  * @源码: https://git.oschina.net/hyjiacan/TinySelect.git
  * @示例: http://hyjiacan.oschina.io/tinyselect
@@ -92,9 +92,9 @@
     var css_mask = css_root + '-mask';
 
     /**
-     * 以列表模式显示  tinyselect-list-mode
+     * 表格布局时，滚动的代理层  .tinyselect-table-proxy
      */
-    var css_listMode = css_root + '-list-mode';
+    var css_tableProxy = css_root + '-table-proxy';
 
     /**
      * 下拉项为空时，下拉框的样式 tinyselect-container-empty
@@ -305,15 +305,17 @@
     /**
      * 默认的创建下拉组件选项
      * 这里列出了所有可用的项
-     * 这些项会被附加到 TinySelect上面,可以通过  TinySelect.xxx 来修改这些默认配置
+     * 这些项会被附加到 TinySelect上面,可以通过  TinySelect.defaults.xxx 来修改这些默认配置
      */
     var defaultOption = {
-        // 附加的样式类名称
-        css: NULL,
         // 组件是否是只读的
         readonly: FALSE,
         // 显示模式，可以设置的值为： dropdown(默认下拉模式), list(列表模式), popup(弹出模式)
         mode: mode_dropdown,
+        // 是否支持键盘操作，默认为 true
+        keyboard: TRUE,
+        // 附加的样式类名称
+        css: NULL,
         // 下拉框容器的样式
         style: {
             // 这个行高是必须的，覆盖这些样式时，需要注意，
@@ -340,9 +342,13 @@
                 delay: 618,
                 // 过滤框的提示文字
                 placeholder: '输入后按回车过滤',
+                // 附加的样式类名称
+                css: NULL,
                 // 过滤框的样式
                 style: {}
             },
+            // 附加的样式类名称
+            css: NULL,
             // 头部样式
             style: {}
         },
@@ -351,8 +357,10 @@
             // 下拉列表没有数据时显示的文字
             empty: '没有数据',
             // 数据项的布局方式
-            // 可设置的值有： list(列表布局，默认值), grid(风格布局), table(表格布局)
+            // 可设置的值有： list(列表布局，默认值), grid(网格布局), table(表格布局)
             layout: layout_list,
+            // 附加的样式类名称
+            css: NULL,
             // 下拉项容器的样式
             style: {}
         },
@@ -360,14 +368,18 @@
         group: {
             // 分组值字段
             // 设置此值时才会分组
-            valueField: false,
+            valueField: FALSE,
             // 分组文本字段，不设置时使用 valueField
             // 相同的 valueField 而 textField不同时，只会取第一个 textField的值
-            textField: false,
+            textField: FALSE,
             // 数据项不包含指定的 valueField字段时的分组名称
             unknown: '未分组',
             // 分组的渲染器
-            render: false
+            render: FALSE,
+            // 附加的样式类名称
+            css: NULL,
+            // 下拉项容器的样式
+            style: {}
         },
         // 下拉项
         item: {
@@ -391,6 +403,8 @@
             // 是否在数据项比设定的 visible 多时使用异步渲染(true)，
             // 在数据较多时建议设置为true，以避免大量的dom操作阻塞页面执行
             async: TRUE,
+            // 附加的样式类名称
+            css: NULL,
             // 每一个下拉项的样式
             style: {}
         },
@@ -409,6 +423,8 @@
              * 选中的下拉项数据
              */
             selectedTpl: '选中' + str_placeholder + '项/',
+            // 附加的样式类名称
+            css: NULL,
             // 底部的样式
             style: {}
         },
@@ -420,6 +436,8 @@
             // 多选结果展示方式，可以设置为 0（显示选中的数量，默认值） 或者 1（显示 选中的项列表）
             // 这是一个预留配置项
             type: 0,
+            // 附加的样式类名称
+            css: NULL,
             // 多选结果的样式
             style: {}
         }
@@ -527,9 +545,10 @@
      *
      * @param {jQuery|String|HtmlElement} selector 用来创建下拉组件的上下文DOM元素
      * @param {Object|Array} option 选项或数据
+     * @param {Boolean} multi 是否可以多选，true为可多选，false为仅单选(默认);仅当option为数组时此参数有效
      * @return {TinySelect} 下拉实例
      */
-    function TinySelect(selector, option) {
+    function TinySelect(selector, option, multi) {
         // 取第一个DOM对象
         var context = $(selector).get(0);
 
@@ -550,7 +569,7 @@
             }
         }
         // 创建下拉组件
-        instance = new TinySelect.fn.init(context, option);
+        instance = new TinySelect.fn.init(context, option, multi);
 
         // 将创建的下拉组件放到实例集合中，以方便实例的查找
         // 查找：前面通过遍历这个集合，查找context对应的实例部分
@@ -571,9 +590,10 @@
          *
          * @param {HtmlElement} context 下拉的上下文DOM元素，下拉将在这个元素的上方或下方显示
          * @param  {Object|Array} option 选项或数据
+         * @param {Boolean} multi 是否可以多选，true为可多选，false为仅单选(默认);仅当option为数组时此参数有效
          * @return {TinySelect} 新的实例
          */
-        init: function(context, option) {
+        init: function(context, option, multi) {
             // 保存实例对象到变量里面
             var ts = this;
 
@@ -583,6 +603,9 @@
                 ts.option = clone(defaultOption, {
                     item: {
                         data: option
+                    },
+                    result: {
+                        multi: multi
                     }
                 });
             } else {
@@ -978,13 +1001,12 @@
         var context = ts.context;
 
         // 给下拉容器添加css类
-        var container = createElement(css_container).addClass(option.css).addClass(css_root + '-mode-' + option.mode);
+        var container = ts.dom = createElement(css_container)
+            .addClass(css_root + '-mode-' + option.mode);
 
         // 以列表模式显示
         switch(option.mode) {
             case mode_list:
-                // 添加列表模式的样式类
-                container.addClass(css_listMode);
                 // 此时就不会再使用绝对定位，而是替换context的位置
                 // 同时，也不会应用样式 width height position
                 // 如果context的父级只有context一个元素，那就设置宽度为auto
@@ -995,7 +1017,7 @@
                 var position = context.css('position');
                 option.style.position = /static/i.test(position) ? 'relative' : position;
 
-                context.hide().after(container);
+                context.append(container);
                 break;
             case mode_dropdown:
                 // 默认的下拉模式
@@ -1011,14 +1033,22 @@
 
         // 给下拉框添加样式
         // 用户设置的优先级最高了
-        ts.dom = container.css(option.style);
+        container.addClass(option.css).css(option.style)
+            // 创建下拉的头部元素
+            .append(renderHeader(ts, option));
 
-        // 创建下拉的头部元素
-        container.append(renderHeader(ts, option));
-
+        var boxoption = option.box;
         // 创建下拉项的容器
-        var box = createElement(css_box).css(option.box.style);
-        ts.box = box.addClass(css_box + '-layout-' + option.box.layout);
+        var box = ts.box = createElement(css_box)
+            .addClass(css_box + '-layout-' + boxoption.layout)
+            .addClass(boxoption.css)
+            .css(boxoption.style);
+
+        // 如果是表格布局，那么加一个滚动的代理层
+        if(boxoption.layout === layout_table) {
+            box.append(createElement(css_tableProxy));
+        }
+
         container.append(box);
 
         // 创建下拉的底部元素
@@ -1033,18 +1063,19 @@
      * @return {jQuery} header的jquery对象
      */
     function renderHeader(ts, option) {
+        var headeroption = option.header;
         // 创建  header
-        var header = createElement(css_header);
-        ts.header = header;
-        // 设置头部的样式
-        header.css(ts.option.header.style);
-
-        // 在头部添加一个过滤的输入框
-        header.append(renderFilter(ts, option));
+        var header = ts.header = createElement(css_header)
+            // 添加css
+            .addClass(headeroption.css)
+            // 设置头部的样式
+            .css(headeroption.style)
+            // 在头部添加一个过滤的输入框
+            .append(renderFilter(ts, option));
 
         // 调用自定义的头部渲染函数
-        if(option.header.render) {
-            option.header.render.call(header, option.item.data);
+        if(headeroption.render) {
+            headeroption.render.call(header, option.item.data);
         }
 
         return header;
@@ -1059,13 +1090,15 @@
      */
     function renderFilter(ts, option) {
         // 创建过滤
-        var filter = option.header.filter;
+        var filteroption = option.header.filter;
 
-        var input = $('<input type="text"  placeholder="' +
-            filter.placeholder + '" class="' + css_filter + '" />').css(filter.style);
+        var filter = $('<input type="text"  placeholder="' +
+                filteroption.placeholder + '" class="' + css_filter + '" />')
+            .addClass(filteroption.css)
+            .css(filteroption.style);
 
-        input.keyup(function(e) {
-            var val = input.val();
+        filter.keyup(function(e) {
+            var val = filter.val();
 
             // 只要按下了键，就先清除过滤的定时器
             if(filter_handle) {
@@ -1073,22 +1106,22 @@
                 filter_handle = 0;
             }
 
-            if(/^change$/i.test(filter.trigger) ?
+            if(/^change$/i.test(filteroption.trigger) ?
                 // 按下非输入键 (不可见字符)不处理
                 ($.trim(String.fromCharCode(e.keyCode || e.which)) !== '' &&
-                    input.data('last') === val) : e.keyCode !== 13) {
+                    filter.data('last') === val) : e.keyCode !== 13) {
                 return;
             }
 
-            input.data('last', val);
+            filter.data('last', val);
 
             // 设置过滤的定时器
             filter_handle = setTimeout(function() {
                 ts.filter(val, TRUE);
-            }, option.header.filter.delay);
+            }, filteroption.delay);
         });
 
-        return input;
+        return filter;
     }
 
     /**
@@ -1099,11 +1132,12 @@
      * @return {jQuery} footer的jquery对象
      */
     function renderFooter(ts, option) {
+        var footeroption = option.footer;
         // 创建下拉底部DOM元素
-        var footer = createElement(css_footer);
-        ts.footer = footer;
-        // 设置下拉底部的样式
-        footer.css(ts.option.footer.style);
+        var footer = ts.footer = createElement(css_footer)
+            .addClass(footeroption.css)
+            // 设置下拉底部的样式
+            .css(footeroption.style);
 
         // 这里面创建左右两个容器，是为了方便底部数据分左右显示
 
@@ -1116,7 +1150,7 @@
         // 添加一个数据项总量显示框
         // 内容根据字符串模板 option.footer.totalTpl 来的
         right.append(createElement(css_totalCount, tag_span)
-            .html(option.footer.totalTpl.replace(str_placeholder, 0)));
+            .html(footeroption.totalTpl.replace(str_placeholder, 0)));
 
         // 将左右两个容器添加到底总元素中
         footer.append(left).append(right);
@@ -1128,8 +1162,8 @@
         }
 
         // 如果定义了底部渲染器，现在是时候调用了
-        if(option.footer.render) {
-            option.footer.render.call(footer, option.data);
+        if(footeroption.render) {
+            footeroption.render.call(footer, option.data);
         }
 
         return footer;
@@ -1298,7 +1332,14 @@
         var length = !data ? 0 : data.length;
 
         // 清空下拉项容器
-        box.empty().height('auto');
+        box.height('auto');
+
+        if(option.box.layout === layout_table) {
+            box.find(Selector.build(css_tableProxy).first()).empty();
+        } else {
+            box.empty();
+        }
+
         // 清除选中结果，这个放在box.empty()后面，可以在选中项很多时执行更快
         // 当然，这个快是我猜的
         clearSelection(ts);
@@ -1406,6 +1447,11 @@
         // renderItems函数会用到这个DOM对象，就在计算box高度那里
         var keep;
 
+        // 如果是表格布局 那么就将元素添加到滚动代理层下
+        if(ts.option.box.layout === layout_table) {
+            box = box.find(Selector.build(css_tableProxy).first());
+        }
+
         var groupOption = ts.option.group;
 
         // 所有的数据项对象
@@ -1438,6 +1484,8 @@
             // 是分组项
             if(groupThem && data._group_item_) {
                 var group = createElement(css_group)
+                    .addClass(groupOption.css)
+                    .css(groupOption.style)
                     .html(data.text).attr(str_groupAttr, data.id);
                 // 调用渲染器
                 if(groupOption.render) {
@@ -1460,7 +1508,8 @@
             var after = createElement(css_itemAfter);
 
             // 给下拉项设置样式，并把三部分追加上
-            item.css(ts.option.item.style).append(before).append(text).append(after);
+            item.addClass(itemoption.css).css(itemoption.style)
+                .append(before).append(text).append(after);
 
             // 文本部分的渲染，如果有指定渲染器，那么就把渲染器的返回值作为文本的显示内容，
             // 如果没有指定渲染器，那么就把指定的 option.item.textField 指定的属性值作为文本内容
@@ -1526,8 +1575,19 @@
         // 比如选中的结果渲染等
         bindDefaultItemEvent(ts);
 
-        // 绑定键盘事件，这里主要是绑定一下方向键移动时高亮下拉项的事件
-        bindKeyboardEvent(ts);
+        if(ts.option.keyboard) {
+            // 绑定键盘事件，这里主要是绑定一下方向键移动时高亮下拉项的事件
+            bindKeyboardEvent(ts);
+        }
+        // 给下拉组件绑定window.resize事件，以在改变浏览器大小时，下拉组件可以停留在正确的位置上
+        $(win).resize(function() {
+            // 为了不那么影响性能，如果下拉组件没有显示出来，就啥也不做
+            if(!ts.dom.is(selector_visible)) {
+                return;
+            }
+            fixPosition(ts.context, ts.dom, ts.option);
+            fixSize(ts);
+        });
     }
 
     /**
@@ -1558,17 +1618,6 @@
             }
 
             return;
-        });
-
-        // 给下拉组件绑定window.resize事件，以在改变浏览器大小时，下拉组件可以停留在正确的位置上
-        $(win).resize(function() {
-            // 为了不那么影响性能，如果下拉组件没有显示出来，就啥也不做
-            // 列表模式也啥也不做
-            if(!dom.is(selector_visible) || ts.option.mode === mode_list) {
-                return;
-            }
-            fixPosition(context, dom, ts.option);
-            fixSize(ts);
         });
     }
 
@@ -1625,20 +1674,21 @@
         // 如果container的高度超出了父容器的高度，那么就将container的高度设置为与父容器一致
         var parentHeight = dom.parent().height();
 
-        if(ts.option.mode !== mode_dropdown) {
+        if(ts.option.mode === mode_list || dom.height() >= parentHeight) {
             dom.height(parentHeight);
         }
-
-        if(dom.height() >= parentHeight) {
-            dom.height(parentHeight);
-
-            // 让数据项出现滚动条
-            ts.box.height(parentHeight - 8 -
-                // header 高度
-                (ts.header.is(selector_visible) ? ts.header.height() : 0) -
-                // footer 高度
-                (ts.footer.is(selector_visible) ? ts.footer.height() : 0));
+        // container 的原始高度，这里不能取 jQuery的计算高度
+        var nativeHeight = dom.get(0).style.height;
+        if(!nativeHeight || /auto/i.test(nativeHeight)) {
+            return;
         }
+        // 高度不是自动时，设置 box的滚动条
+        // 让数据项出现滚动条
+        ts.box.height(dom.height() - 8 -
+            // header 高度
+            (ts.header.is(selector_visible) ? ts.header.height() : 0) -
+            // footer 高度
+            (ts.footer.is(selector_visible) ? ts.footer.height() : 0));
     }
 
     /**
@@ -1739,15 +1789,17 @@
 
             //------------- 处理多选的结果项
 
-            // 添加一个结果项到结果容器中
-            var item = renderMultiSelectResultItem(ts, text, e.index);
-            result.append(item);
+            // 不是列表模式才渲染结果DOM
+            if(option.mode !== mode_list) {
+                // 添加一个结果项到结果容器中
+                var item = renderMultiSelectResultItem(ts, text, e.index);
+                result.append(item);
 
-            // 滚动到最底部
-            result.stop().animate({
-                scrollTop: result[0].scrollHeight
-            });
-
+                // 滚动到最底部
+                result.stop().animate({
+                    scrollTop: result[0].scrollHeight
+                });
+            }
             // 设置多选的选中项数量
             setData(count, (getData(count) || 0) + 1);
 
@@ -1796,8 +1848,10 @@
             // 保存当前要高亮的元素的变量
             var now;
 
+            var keycode = e.keyCode || e.which;
+
             // 下方向键
-            if(e.keyCode === 40) {
+            if(keycode === 40) {
                 // 如果当前没有高亮的，就高亮第一项
                 if(old.length === 0) {
                     now = getItemsFromDom(ts).eq(0);
@@ -1805,7 +1859,7 @@
                     // 当前有高亮的项，就高亮当前项的后一项
                     now = old.next();
                 }
-            } else if(e.keyCode === 38) {
+            } else if(keycode === 38) {
                 // 上方向键
 
                 // 如果当前没有高亮的，就高亮第一项
@@ -1816,12 +1870,23 @@
                     now = old.prev();
                 }
             } else {
+                if(keycode === 32) {
+                    // 按下空格  相当于选中这项
+                    old.click();
+                } else if(keycode === 27) {
+                    // 按下 esc 关闭组件
+                    ts.hide();
+                }
+
                 return;
             }
 
             if(!now.length) {
                 now = old;
             }
+
+            ts.header.find('.' + css_filter).blur();
+            now.focus();
 
             // 给这个项添加高亮样式，并移除其它项的高亮样式
             old.removeClass(css_itemHover);

@@ -8,36 +8,52 @@
         "file": "basic-multiple.html",
         "group": "基础用法"
     }, {
-        "title": "下拉模式(默认)",
-        "file": "mode-dropdown.html",
+        "title": "下拉模式-单选",
+        "file": "mode-dropdown-single.html",
         "group": "显示模式"
     }, {
-        "title": "单选列表模式",
+        "title": "下拉模式-多选",
+        "file": "mode-dropdown-multiple.html",
+        "group": "显示模式"
+    }, {
+        "title": "列表模式-单选",
         "file": "mode-list-single.html",
         "group": "显示模式"
     }, {
-        "title": "多选列表模式",
+        "title": "列表模式-多选",
         "file": "mode-list-multiple.html",
         "group": "显示模式"
     }, {
-        "title": "没有头部和底部",
+        "title": "列表模式-单选(没有头部和底部)",
         "file": "mode-list-clean.html",
         "group": "显示模式"
     }, {
-        "title": "弹出模式",
-        "file": "mode-popup.html",
+        "title": "弹出模式-单选",
+        "file": "mode-popup-single.html",
+        "group": "显示模式"
+    }, {
+        "title": "弹出模式-多选",
+        "file": "mode-popup-multiple.html",
         "group": "显示模式"
     }, {
         "title": "列表布局(默认)",
         "file": "layout-list.html",
         "group": "布局类型"
     }, {
-        "title": "网格布局",
-        "file": "layout-grid.html",
+        "title": "网格布局-单选",
+        "file": "layout-grid-single.html",
         "group": "布局类型"
     }, {
-        "title": "表格布局",
-        "file": "layout-table.html",
+        "title": "网格布局-多选",
+        "file": "layout-grid-multiple.html",
+        "group": "布局类型"
+    }, {
+        "title": "表格布局-单选",
+        "file": "layout-table-single.html",
+        "group": "布局类型"
+    }, {
+        "title": "表格布局-多选",
+        "file": "layout-table-multiple.html",
         "group": "布局类型"
     }, {
         "title": "单选设置初始值",

@@ -22,8 +22,8 @@
         <script>
             $.getJSON('misc/data/data.json').then(function(data) {
                 tinyselect('#tinyselectcontext', {
-                    box: {
-                        layout: 'list', // 这是默认值，即不设置时也是这个值
+                    box:{
+                        layout: 'grid'
                     },
                     item: {
                         data: data,

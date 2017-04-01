@@ -21,12 +21,6 @@
         </div>
         <script>
             $.getJSON('misc/data/data.json').then(function(data) {
-                for(var i = 0; i < 40; i++) {
-                    data.push({
-                        id: 13 + i,
-                        text: 13 + i + '月'
-                    });
-                }
                 tinyselect('#tinyselectcontext', {
                     mode: 'popup',
                     style: {

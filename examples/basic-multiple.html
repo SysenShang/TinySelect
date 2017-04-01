@@ -21,14 +21,7 @@
         </div>
         <script>
             $.getJSON('misc/data/data.json').then(function(data) {
-                tinyselect('#tinyselectcontext', {
-                    item: {
-                        data: data
-                    },
-                    result: {
-                        multi: true
-                    }
-                });
+                tinyselect('#tinyselectcontext', data, true);
             });
         </script>
     </body>

@@ -11,6 +11,12 @@
     box-sizing: border-box;
 }
 
+.content-box {
+    -moz-box-sizing: content-box;
+    -webkit-box-sizing: content-box;
+    box-sizing: content-box;
+}
+
 .text-ellipsis() {
     -ms-text-overflow: ellipsis;
     -o-text-overflow: ellipsis;
@@ -28,14 +34,20 @@
     height: auto;
     color: #333;
     z-index: 99;
-    -moz-box-sizing: content-box;
-    -webkit-box-sizing: content-box;
-    box-sizing: content-box;
+    .border-box();
     &:not(.tinyselect-mode-list) {
-        display: none;
         position: absolute;
         border-top-width: 0;
         box-shadow: rgba(0, 0, 0, .2) 0 2px 4px 2px;
+    }
+
+    &.tinyselect-mode-list {
+        height: 100%;
+    }
+
+    &.tinyselect-mode-dropdown {
+        display: none;
+        .content-box();
     }
 
     .tinyselect-box {
@@ -67,7 +79,6 @@
             }
             &-selected {
                 color: #1773B6;
-                background-color: #DFF2FF;
                 .tinyselect-item-after {
                     width: 16px;
                     height: 100%;
@@ -82,13 +93,54 @@
                 }
             }
         }
-        
-        .tinyselect-group{
-            display:block;
-            padding: 5px 15px;
-            font-weight: bolder;
-            background-color: #c5eafb;
-            border-bottom: 1px solid darken(#c5eafb, 5%);
+
+        .tinyselect-group {
+            display: block;
+            padding: 5px;
+            background-color: #f7f7f7;
+            border-bottom: 1px solid #cfcfd0;
+            border-left: 3px double #cfcfd0;
+        }
+
+        &-layout-grid {
+            .tinyselect-item {
+                float: left;
+
+                &-selected {
+                    border: solid 1px #1773B6;
+                }
+            }
+        }
+
+        &-layout-table {
+            overflow-y: auto;
+            overflow-x: hidden;
+            .tinyselect-table-proxy {
+                width: 100%;
+                border-collapse: collapse;
+                display: table;
+                .tinyselect-item {
+                    display: table-row;
+                    float: none;
+                    border: none;
+
+                    > * {
+                        padding: 2px 5px;
+                        float: none;
+                        display: table-cell;
+                        border: 1px solid #EFEFEF;
+                        &:first-child {
+                            border-left-width: 1px;
+                        }
+                        &:last-child {
+                            border-right-width: 1px;
+                        }
+                    }
+                    &:hover > * {
+                        background-color: #FAFAFA;
+                    }
+                }
+            }
         }
     }
 
@@ -141,6 +193,7 @@
             .text-ellipsis();
             max-width: 160px;
             min-width: 100px;
+            text-align: center;
             margin: 2px 5px;
             background-color: #DAEAF9;
             color: #3D7399;

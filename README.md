@@ -15,9 +15,12 @@ TinySelect 是一个以灵活为目标的WEB下拉组件。旨在通过灵活的
 - 可以设置部分数据的显示模板
 - 支持数据项的异步渲染
 - 支持多种显示模式：下拉(dropdown, 默认)、列表(list)、弹出(popup)
+- 支持多种数据项布局：列表(list, 默认)、网格(grid)、表格(table)
+- 支持键盘操作移动与选择项
 
+[MENU]
 
-## 快速上手/Quick Start
+## 快速上手
 
 将`dist`目录复制到你的项目中，然后在页面上添加引用
 
@@ -74,9 +77,17 @@ var data = [{
 
 ### 最简单的用法
 
+**单选**
 ```javascript
 var ts = tinyselect('#tinyselectcontext', data);
 ```
+
+**多选**
+```javascript
+var ts = tinyselect('#tinyselectcontext', data, true);
+```
+
+注：参数 `true`仅在第二个参数为数据数组时有效。
 
 ### 加点选项的用法
 
@@ -98,19 +109,20 @@ var ts = tinyselect('#tinyselectcontext', {
 
 更多用法，请看[示例](https://hyjiacan.oschina.io/tinyselect/examples/)。
 
-## 选项/Option
+## 选项
 
 创建下拉组件的默认选项。这里列出了所有可用的项，这些项会被附加到`TinySelect`上面,可以通过修改`tinyselect.defaults` 来改变这些默认配置，如： `tinyselect.defaults.result.multi = true` 这样的写法会让页面内之后创建的下拉组件都默认启用多选模式。
 
 ```javascript
 {
-    // 附加的样式类名称
-    css: null,
     // 组件是否是只读的
     readonly: false,
     // 显示模式，可以设置的值为： dropdown(默认下拉模式), list(列表模式), popup(弹出模式)
-    // 一般来说，在设置为 popup的时候， item.visible 的值应该设置为 0，以显示所有项 
     mode: mode_dropdown,
+    // 是否支持键盘操作，默认为 true
+    keyboard: true,
+    // 附加的样式类名称
+    css: NULL,
     // 下拉框容器的样式
     style: {
         // 这个行高是必须的，覆盖这些样式时，需要注意，
@@ -137,9 +149,13 @@ var ts = tinyselect('#tinyselectcontext', {
             delay: 618,
             // 过滤框的提示文字
             placeholder: '输入后按回车过滤',
+            // 附加的样式类名称
+            css: NULL,
             // 过滤框的样式
             style: {}
         },
+        // 附加的样式类名称
+        css: NULL,
         // 头部样式
         style: {}
     },
@@ -150,6 +166,25 @@ var ts = tinyselect('#tinyselectcontext', {
         // 数据项的布局方式
         // 可设置的值有： list(列表布局，默认值), grid(网格布局), table(表格布局)
         layout: layout_list,
+        // 附加的样式类名称
+        css: NULL,
+        // 下拉项容器的样式
+        style: {}
+    },
+    // 数据项分组设置
+    group: {
+        // 分组值字段
+        // 设置此值时才会分组
+        valueField: false,
+        // 分组文本字段，不设置时使用 valueField
+        // 相同的 valueField 而 textField不同时，只会取第一个 textField的值
+        textField: false,
+        // 数据项不包含指定的 valueField字段时的分组名称
+        unknown: '未分组',
+        // 分组的渲染器
+        render: false,
+        // 附加的样式类名称
+        css: NULL,
         // 下拉项容器的样式
         style: {}
     },
@@ -163,17 +198,20 @@ var ts = tinyselect('#tinyselectcontext', {
         valueField: 'id',
         // 数据对象的文本字段，下拉项的显示文字
         textField: 'text',
-        // 可见项的数量(也可以说是显示数据的行数)，数据数量多余此值时出现滚动条
-        // 组件通过计算第一项的高度 height，然后计算  height * visible 得到 box的高度
+        // 可见项的数量，数据数量多余此值时出现滚动条
         visible: 5,
         // 下拉项的渲染器，使用返回值设置项的内容
-        // render: function(itemdata, alldata){}  this 指向即将渲染的网页元素对象。
-        // itemdata:这一项的数据  alldata:下拉的所有数据
+        // render: function(itemdata, index, alldata){}  this 指向即将渲染的网页元素对象。
+        // itemdata:这一项的数据 
+        // index: 这一项数据的索引
+        // alldata:下拉的所有数据
         // 设置为false 禁用渲染器
         render: false,
         // 是否在数据项比设定的 visible 多时使用异步渲染(true)，
         // 在数据较多时建议设置为true，以避免大量的dom操作阻塞页面执行
-        async: true,
+        async: TRUE,
+        // 附加的样式类名称
+        css: NULL,
         // 每一个下拉项的样式
         style: {}
     },
@@ -185,13 +223,15 @@ var ts = tinyselect('#tinyselectcontext', {
         // 这个是在执行完其初始化，添加到容器前调用的
         render: false,
         /**
-            * 下拉项数量
-            */
+         * 下拉项数量
+         */
         totalTpl: '共' + str_placeholder + '项',
         /**
-            * 选中的下拉项数据
-            */
+         * 选中的下拉项数据
+         */
         selectedTpl: '选中' + str_placeholder + '项/',
+        // 附加的样式类名称
+        css: NULL,
         // 底部的样式
         style: {}
     },
@@ -203,22 +243,43 @@ var ts = tinyselect('#tinyselectcontext', {
         // 多选结果展示方式，可以设置为 0（显示选中的数量，默认值） 或者 1（显示 选中的项列表）
         // 这是一个预留配置项
         type: 0,
+        // 附加的样式类名称
+        css: NULL,
         // 多选结果的样式
         style: {}
     }
-};
+}
 ```
 注：
 
 - 以上选项中所有的`style`项可以使用所有的`css`样式，名称中有连字符的时候可以写成`font-size`或者`fontSize`
 - 多选的结果框始终不会显示下拉指示器
 
-### 布局选项
+### 键盘支持
+
+通过选项`option.keyboard` 设置是否支持键盘操作，默认为`true`
+当为`true`时，可以通过以下键操作组件：
+
+- `↑` 上方向键，项向上移动一位
+- `↓` 下方向键，项向下移动一位
+- `Space` 空格键，选中/取消选中当前项
+- `Esc` Esc键，关闭组件
+
+### 显示模式选项
+
+目前组件提供了三种显示模式：
+
+- `dropdown` 下拉模式（默认） [示例](examples/#mode-dropdown-single.html)
+- `list` 列表模式，此模式没有选择结果框 [示例](examples/#mode-list-single.html)
+- `popup` 弹出模式，这项会弹出框的方式显示数据项，在弹出框后面，有一个mask层 [示例](examples/#mode-popup-single.html)
+
+### 数据项布局选项
 
 **布局**是指数据项的排列方式，通过参数`option.box.layout`来设置，可以设置为
-- `list` 列表布局，默认值
-- `grid` 网格布局
-- `table` 表格布局
+
+- `list` 列表布局，默认值 [示例](examples/#layout-list-single.html)
+- `grid` 网格布局 [示例](examples/#layout-grid-single.html)
+- `table` 表格布局 [示例](examples/#layout-table-single.html)
 
 布局`grid`与`table`不同之处在于:
 - `grid`是所有项以网格方式显示，每一行显示的项的数量与每项占用的宽度相关,如果要控制每一行显示项的数量，那么请设置项的宽度和下拉框的宽度
@@ -226,7 +287,7 @@ var ts = tinyselect('#tinyselectcontext', {
 
 不同的布局基本上都是通过不同的样式来实现的。
 
-## 接口/Method
+## 接口
 
 TinySelect 提供了一组易用的操作接口。这些接口除了取值类的，其它都返回了下拉组件的实例，也就是说非取值类的接口可以进行链式调用。
 
@@ -317,7 +378,7 @@ TinySelect 目前提供了三个事件：`select`, `unselect`, `ready`。
 
 > 在初始化下拉组件后立即调用 `.value()` 设置值的时候，需要确保渲染已经完成。
 
-## 自定义样式/Custom Style
+## 自定义样式
 
 可以通过重写这些样式来实现不同的效果。
 
@@ -336,13 +397,15 @@ TinySelect 目前提供了三个事件：`select`, `unselect`, `ready`。
 
 > 仅在`popup`模式时存在
 
-- tinyselect-mask 弹出框的mask层，container的父级元素，默认以`fixed`撑满窗口
+- tinyselect-mask 弹出框的mask层，container的父级元素，默认以`position: fixed`撑满窗口
 
 ### 弹出框
 
 - tinyselect-container 下拉框最顶级容器
 - tinyselect-empty 没有数据项时顶级容器的样式
-- tinyselect-list-mode 下拉组件作为列表显示时的样式
+- tinyselect-mode-dropdown 下拉组件作为下拉框显示时的样式(默认)
+- tinyselect-mode-list 下拉组件作为列表显示时的样式
+- tinyselect-mode-popup 下拉组件作为弹出框显示时的样式
 
 #### 头部
 
@@ -363,6 +426,7 @@ TinySelect 目前提供了三个事件：`select`, `unselect`, `ready`。
 - tinyselect-box-layout-list 下拉项列表布局
 - tinyselect-box-layout-grid 下拉项网格布局
 - tinyselect-box-layout-table 下拉项表格布局
+- tinyselect-table-proxy 以表格方式布局时的表格元素
 - tinyselect-item 下拉项
 - tinyselect-item-selected 下拉项选中状态
 - tinyselect-item-before 下拉项文字前的元素
