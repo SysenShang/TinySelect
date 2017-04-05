@@ -116,11 +116,11 @@ var ts = tinyselect('#tinyselectcontext', {
 ```javascript
 {
     // 组件是否是只读的
-    readonly: false,
+    readonly: FALSE,
     // 显示模式，可以设置的值为： dropdown(默认下拉模式), list(列表模式), popup(弹出模式)
     mode: mode_dropdown,
     // 是否支持键盘操作，默认为 true
-    keyboard: true,
+    keyboard: TRUE,
     // 附加的样式类名称
     css: NULL,
     // 下拉框容器的样式
@@ -135,7 +135,7 @@ var ts = tinyselect('#tinyselectcontext', {
         // 头部渲染器，其this上下文就是其DOM对象，
         // 直接操作这个对象来改变头部
         // 这个是在执行完其初始化，添加到容器前调用的
-        render: false,
+        render: FALSE,
         // 过滤框
         filter: {
             // 触发过滤的动作，可以设置为 change 或 enter(默认)。
@@ -149,6 +149,7 @@ var ts = tinyselect('#tinyselectcontext', {
             delay: 618,
             // 过滤框的提示文字
             placeholder: '输入后按回车过滤',
+            render: FALSE,
             // 附加的样式类名称
             css: NULL,
             // 过滤框的样式
@@ -173,16 +174,24 @@ var ts = tinyselect('#tinyselectcontext', {
     },
     // 数据项分组设置
     group: {
+        // 默认的分组id字段，如果数据项有这个字段，表示这是一个分组项
+        // 修改这个值可以避免字段名称与原始数据的字段名称冲突
+        // 注意：分组字段是组件自动生成的
+        id: '_group_id_',
+        // 数据是分组项的标记字段，有这个字段表示数据项是一个分组项
+        // 修改这个值可以避免字段名称与原始数据的字段名称冲突
+        flag: '_group_item_',
         // 分组值字段
-        // 设置此值时才会分组
-        valueField: false,
+        // 也就是分组的依据字段
+        // 值为 false 时不分组
+        valueField: 'group',
         // 分组文本字段，不设置时使用 valueField
         // 相同的 valueField 而 textField不同时，只会取第一个 textField的值
-        textField: false,
+        textField: FALSE,
         // 数据项不包含指定的 valueField字段时的分组名称
         unknown: '未分组',
         // 分组的渲染器
-        render: false,
+        render: FALSE,
         // 附加的样式类名称
         css: NULL,
         // 下拉项容器的样式
@@ -193,7 +202,7 @@ var ts = tinyselect('#tinyselectcontext', {
         // 下拉项数据的数组，每一项需要对象结构的数据
         data: [],
         // 默认选中的项
-        value: false,
+        value: FALSE,
         // 数据对象的值字段，在获取/设置值时，会使用这个字段
         valueField: 'id',
         // 数据对象的文本字段，下拉项的显示文字
@@ -201,12 +210,12 @@ var ts = tinyselect('#tinyselectcontext', {
         // 可见项的数量，数据数量多余此值时出现滚动条
         visible: 5,
         // 下拉项的渲染器，使用返回值设置项的内容
-        // render: function(itemdata, index, alldata){}  this 指向即将渲染的网页元素对象。
+        // render: function(itemdata, index, alldata, ts){}  this 指向即将渲染的网页元素对象。
         // itemdata:这一项的数据 
         // index: 这一项数据的索引
         // alldata:下拉的所有数据
         // 设置为false 禁用渲染器
-        render: false,
+        render: FALSE,
         // 是否在数据项比设定的 visible 多时使用异步渲染(true)，
         // 在数据较多时建议设置为true，以避免大量的dom操作阻塞页面执行
         async: TRUE,
@@ -221,7 +230,7 @@ var ts = tinyselect('#tinyselectcontext', {
         // 直接操作这个对象来改变底部
         // 需要注意的是，底部分了“左”、“右”两个区域，以放置不同的东西
         // 这个是在执行完其初始化，添加到容器前调用的
-        render: false,
+        render: FALSE,
         /**
          * 下拉项数量
          */
@@ -237,9 +246,9 @@ var ts = tinyselect('#tinyselectcontext', {
     },
     result: {
         // 是否启用多选模式
-        multi: false,
+        multi: FALSE,
         // 渲染选中结果的渲染器，可以通过这个来改变选中结果的渲染
-        render: false,
+        render: FALSE,
         // 多选结果展示方式，可以设置为 0（显示选中的数量，默认值） 或者 1（显示 选中的项列表）
         // 这是一个预留配置项
         type: 0,
@@ -254,6 +263,32 @@ var ts = tinyselect('#tinyselectcontext', {
 
 - 以上选项中所有的`style`项可以使用所有的`css`样式，名称中有连字符的时候可以写成`font-size`或者`fontSize`
 - 多选的结果框始终不会显示下拉指示器
+
+### 渲染器
+
+即：`render`。
+
+组件可以配置以下渲染器：
+
+- header.render(data, ts)
+    头部结构渲染器。 参数`data`为组件的数据数组
+- header.filter.render(header, ts)
+    头部的filter的渲染器。 参数`header`是组件的头部jQuery对象
+- group.render(data, ts)
+    数据项分组时，分组项的渲染器。参数`data`是分组数据对象，结构是这样的：
+```javascript
+{
+    _group_id_
+}
+```
+- item.render(itemdata, index, data, ts)
+    数据项的渲染器。第一个参数
+
+-footer.render
+
+-result.render
+    
+所有的渲染器，其上下文对象(`this`)均为渲染DOM的jQuery对象，最后一个参数都是组件对象，可以直接在渲染器内操作`this`对象来改变渲染结果
 
 ### 键盘支持
 

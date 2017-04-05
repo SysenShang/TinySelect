@@ -342,6 +342,7 @@
                 delay: 618,
                 // 过滤框的提示文字
                 placeholder: '输入后按回车过滤',
+                render: FALSE,
                 // 附加的样式类名称
                 css: NULL,
                 // 过滤框的样式
@@ -366,8 +367,16 @@
         },
         // 数据项分组设置
         group: {
+            // 默认的分组id字段，如果数据项有这个字段，表示这是一个分组项
+            // 修改这个值可以避免字段名称与原始数据的字段名称冲突
+            // 注意：分组字段是组件自动生成的
+            id: '_group_id_',
+            // 数据是分组项的标记字段，有这个字段表示数据项是一个分组项
+            // 修改这个值可以避免字段名称与原始数据的字段名称冲突
+            flag: '_group_item_',
             // 分组值字段
-            // 设置此值时才会分组
+            // 也就是分组的依据字段
+            // 值为 false 时不分组
             valueField: FALSE,
             // 分组文本字段，不设置时使用 valueField
             // 相同的 valueField 而 textField不同时，只会取第一个 textField的值
@@ -394,10 +403,10 @@
             // 可见项的数量，数据数量多余此值时出现滚动条
             visible: 5,
             // 下拉项的渲染器，使用返回值设置项的内容
-            // render: function(itemdata, index, alldata){}  this 指向即将渲染的网页元素对象。
+            // render: function(itemdata, index, data, ts){}  this 指向即将渲染的网页元素对象。
             // itemdata:这一项的数据 
             // index: 这一项数据的索引
-            // alldata:下拉的所有数据
+            // data:下拉的所有数据
             // 设置为false 禁用渲染器
             render: FALSE,
             // 是否在数据项比设定的 visible 多时使用异步渲染(true)，
@@ -795,8 +804,6 @@
             // 判断是通过关键字过滤还是传入了自定义的过滤器（函数）
             var isfn = $.isFunction(keyOrFn);
 
-            var groupThem = !!ts.option.group.valueField;
-
             // 取到所有下拉项的DOM
             var items = getItemsFromDom(ts);
 
@@ -820,7 +827,7 @@
             });
 
             function groupProxy(item) {
-                if(!groupThem) {
+                if(!ts.option.group.valueField) {
                     return;
                 }
 
@@ -1069,13 +1076,14 @@
             // 添加css
             .addClass(headeroption.css)
             // 设置头部的样式
-            .css(headeroption.style)
-            // 在头部添加一个过滤的输入框
-            .append(renderFilter(ts, option));
+            .css(headeroption.style);
+
+        // 在头部添加一个过滤的输入框
+        renderFilter(ts, header, option);
 
         // 调用自定义的头部渲染函数
         if(headeroption.render) {
-            headeroption.render.call(header, option.item.data);
+            headeroption.render.call(header, option.item.data, ts);
         }
 
         return header;
@@ -1085,10 +1093,11 @@
      * 当配置了过滤可见时，渲染过滤器
      *
      * @param {TinySelect} ts 当前的TinySelect实例
+     * @param {jQuery} header 当前组件的header
      * @param {Object} option 选项，创建下拉组件时传入的参数与默认参数合并得到
      * @return {jQuery} 过滤框的jquery对象
      */
-    function renderFilter(ts, option) {
+    function renderFilter(ts, header, option) {
         // 创建过滤
         var filteroption = option.header.filter;
 
@@ -1121,7 +1130,11 @@
             }, filteroption.delay);
         });
 
-        return filter;
+        if(filteroption.render) {
+            filteroption.render.call(filter, header, ts);
+        }
+
+        header.append(filter);
     }
 
     /**
@@ -1163,7 +1176,7 @@
 
         // 如果定义了底部渲染器，现在是时候调用了
         if(footeroption.render) {
-            footeroption.render.call(footer, option.data);
+            footeroption.render.call(footer, option.data, ts);
         }
 
         return footer;
@@ -1239,25 +1252,46 @@
      * @return {Array} 处理后的数据
      */
     function resolveGroupData(data, group) {
+        // 分组数据结构
+        //      {
+        //          // 这项由 option.group.id 定义
+        //          _group_id_: 0,
+        //          // 这项由 option.group.flag 定义
+        //          _group_item_: true
+        //          key: 'xxx',
+        //          title: 'group1'
+        //      }
+
+        // 分组序号字段名称
+        var groupid = group.id;
+        // 分组标记字段名称
+        var groupflag = group.flag;
         var valueField = group.valueField;
         // 没有设置 textField的话，就用 valueField 来作为 text
         var textField = group.textField || valueField;
 
         // 创建一个单独的数组用来作为未分组的项
-        var unknown = [{ _group_item_: TRUE, text: group.unknown, id: 0 }];
+        var unknownItem = {
+            key: null,
+            title: group.unknown
+        };
+        unknownItem[groupid] = 0;
+        unknownItem[groupflag] = TRUE;
+
+        var unknownGroup = [unknownItem];
 
         // 存放除了未分组的所有分组
         var groups = {};
 
-        var groupid = 0;
+        var id = 0;
 
         $.each(data, function() {
             var item = this;
             var hasValue = own(item, valueField);
             var hasText = own(item, textField);
             if(!hasValue) {
-                item._group_id_ = 0;
-                unknown.push(item);
+                item[groupid] = 0;
+                unknownGroup.push(item);
                 return;
             }
 
@@ -1268,13 +1302,13 @@
 
             if(!own(groups, val)) {
                 groups[val] = {
-                    id: ++groupid,
+                    id: ++id,
                     text: text,
                     data: []
                 };
             }
 
-            item._group_id_ = groupid;
+            item[groupid] = id;
 
             groups[val].data.push(item);
         });
@@ -1283,22 +1317,26 @@
         // 先取出所有的分组数据，将其搞成一条数组记录
         // 然后再将下面的项追加到数组后面
         // 重复 一直到结束
-        // 最后再将 unknown 的项加进去
+        // 最后再将 unknownGroup 的项加进去
         var temp = [];
 
         $.each(groups, function(key, groupData) {
-            temp.push({
-                id: groupData.id,
-                _group_item_: TRUE,
+            var groupItem = {
                 key: key,
-                text: groupData.text
-            });
+                title: groupData.text
+            };
+
+            groupItem[groupid] = groupData.id;
+            groupItem[groupflag] = TRUE;
+
+            temp.push(groupItem);
+
             mergeArray(temp, groupData.data);
         });
 
         // 有个默认的分组项  判断>1才表示真的有未分组的项
-        if(unknown.length > 1) {
-            mergeArray(temp, unknown);
+        if(unknownGroup.length > 1) {
+            mergeArray(temp, unknownGroup);
         }
         return temp;
     }
@@ -1373,6 +1411,7 @@
         }
 
         // 处理分组
+        // 这个数据处理放到数据长度获取后面，以保证数据项的长度与原始数据一致
         if(group.valueField) {
             data = resolveGroupData(data, group);
             length = data.length;
@@ -1475,21 +1514,23 @@
         }
 
         // 数据是不是需要分组
-        var groupThem = groupOption.valueField;
+        var groupThem = !!groupOption.valueField;
 
         // 来哇，循环数据项，并在下拉选项容器中添加DOM元素
         for(var i = start; i < end; i++) {
             var data = alldata[i];
 
             // 是分组项
-            if(groupThem && data._group_item_) {
+            if(groupThem && data[groupOption.flag]) {
                 var group = createElement(css_group)
                     .addClass(groupOption.css)
                     .css(groupOption.style)
-                    .html(data.text).attr(str_groupAttr, data.id);
+                    .append(data.title)
+                    .attr(str_groupAttr, data[groupOption.id]);
+
                 // 调用渲染器
                 if(groupOption.render) {
-                    group.append(groupOption.render.call(ts, group, data));
+                    groupOption.render.call(group, data, ts);
                 }
                 box.append(group);
                 continue;
@@ -1511,10 +1552,12 @@
             item.addClass(itemoption.css).css(itemoption.style)
                 .append(before).append(text).append(after);
 
-            // 文本部分的渲染，如果有指定渲染器，那么就把渲染器的返回值作为文本的显示内容，
-            // 如果没有指定渲染器，那么就把指定的 option.item.textField 指定的属性值作为文本内容
-            text.append(itemoption.render ?
-                itemoption.render.call(item, data, i, originData) : data[itemoption.textField]);
+            text.append(data[itemoption.textField]);
+
+            // 调用渲染器
+            if(itemoption.render) {
+                itemoption.render.call(item, data, i, originData, ts);
+            }
 
             // 给下拉项设置一个索引（添加属性 'data-tiny-index'）
             item.attr(str_indexAttr, i);
