@@ -20,23 +20,14 @@
 
     .tinyselect-box {
         overflow: hidden;
+        border-width: 0 1px;
+        border-color: #CCC;
+        border-style: solid;
         &:hover {
             overflow-y: auto;
         }
     }
 
-    .tinyselect-item {
-        border-bottom: 1px solid #EEE;
-        box-shadow: rgba(0, 0, 0, .1) 0 0 1px 0;
-
-        &-hover {
-            border-color: #AAA;
-            color: #0088CC;
-        }
-        &:not(&-selected) {
-            color: #666;
-        }
-    }
     .tinyselect-header {
         border-top: 1px solid transparent;
     }

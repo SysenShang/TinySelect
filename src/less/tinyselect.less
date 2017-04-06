@@ -1,4 +1,6 @@
-﻿.transition(@timeout, @prop) {
+﻿@import "colors";
+
+.transition(@timeout, @prop) {
     -moz-transition: @timeout @prop;
     -o-transition: @timeout @prop;
     -webkit-transition: @timeout @prop;
@@ -29,16 +31,16 @@
 }
 
 .tinyselect-container {
-    background-color: #FEFEFE;
-    border: 1px solid #ababab;
+    background-color: @con-bg;
+    border: 1px solid @con-bd;
     height: auto;
-    color: #333;
+    color: @con-fg;
     z-index: 99;
     .border-box();
     &:not(.tinyselect-mode-list) {
         position: absolute;
         border-top-width: 0;
-        box-shadow: rgba(0, 0, 0, .2) 0 2px 4px 2px;
+        box-shadow: @con-sd 0 2px 4px 2px;
     }
 
     &.tinyselect-mode-list {
@@ -52,18 +54,20 @@
 
     .tinyselect-box {
         overflow-y: auto;
+        padding: 0 2px;
         .tinyselect-item {
             .border-box();
             cursor: default;
             .text-ellipsis();
-            border: 1px solid transparent;
-            border-top-color: #FFF;
-            .transition(618ms, border-color);
-            .transition(618ms, background-color);
+            .transition(382ms, border-color);
+            .transition(382ms, background-color);
             position: relative;
             padding: 0 5px;
-            transition-duration: 382ms;
-            transition-property: border-color;
+            color: @item-fg;
+            background-color: @item-bg;
+            border-width: 1px;
+            border-style: solid;
+            border-color: @item-bd;
 
             &-before {
                 float: left;
@@ -75,10 +79,14 @@
                 float: right;
             }
             &-hover {
-                border-color: #dedede;
+                color: @item-hover-fg;
+                border-color: @item-hover-bd;
+                background-color: @item-hover-bg;
             }
             &-selected {
-                color: #1773B6;
+                color: @item-selected-fg;
+                border-color: @item-selected-bd;
+                background-color: @item-selected-bg;
                 .tinyselect-item-after {
                     width: 16px;
                     height: 100%;
@@ -97,9 +105,10 @@
         .tinyselect-group {
             display: block;
             padding: 5px;
-            background-color: #f7f7f7;
-            border-bottom: 1px solid #cfcfd0;
-            border-left: 3px double #cfcfd0;
+            background-color: @group-bg;
+            border-width: 0 0 1px 0;
+            border-style: solid;
+            border-color: @group-bd;
         }
 
         &-layout-grid {
@@ -107,7 +116,9 @@
                 float: left;
 
                 &-selected {
-                    border: solid 1px #1773B6;
+                    border-width: 1px;
+                    border-style: solid;
+                    border-color: @grid-bd;
                 }
             }
         }
@@ -128,7 +139,7 @@
                         padding: 2px 5px;
                         float: none;
                         display: table-cell;
-                        border: 1px solid #EFEFEF;
+                        border: 1px solid @table-bd;
                         &:first-child {
                             border-left-width: 1px;
                         }
@@ -137,7 +148,7 @@
                         }
                     }
                     &:hover > * {
-                        background-color: #FAFAFA;
+                        background-color: @table-hover-bg;
                     }
                 }
             }
@@ -145,7 +156,7 @@
     }
 
     .tinyselect-header {
-        border-bottom: 1px solid #CCC;
+        border-bottom: 1px solid @header-bd;
         .tinyselect-filter {
             border: none;
             width: 100%;
@@ -157,7 +168,7 @@
     .tinyselect-footer {
         font-size: smaller;
         padding: 2px 5px;
-        border-top: 1px solid #EEE;
+        border-top: 1px solid @footer-bd;
         &:after {
             content: ' ';
             clear: both;
@@ -178,7 +189,7 @@
             display: none !important;
         }
         .tinyselect-box {
-            color: #888;
+            color: @empty-fg;
         }
     }
 }
@@ -195,12 +206,11 @@
             min-width: 100px;
             text-align: center;
             margin: 2px 5px;
-            background-color: #DAEAF9;
-            color: #3D7399;
+            background-color: @result-bg;
+            color: @result-fg;
             float: left;
             height: 24px;
             line-height: 24px;
-            border-radius: 12px;
             &-text {
                 display: block;
                 max-width: 120px;
@@ -219,9 +229,15 @@
                 float: right;
                 height: 24px;
                 line-height: 23px;
-                border-radius: 12px;
-                color: #FFF;
                 background: url("./img/remove.png") no-repeat center center;
+            }
+            &:hover {
+                color: @result-hover-fg;
+                background-color: @result-hover-bg;
+                
+                .tinyselect-result-item-link{
+                    
+                }
             }
         }
     }
@@ -241,26 +257,26 @@
     }
     &.tinyselect-context-readonly {
         .tinyselect-result-item-link {
-            background-color: lighten(#ec4c64, 30%);
+            background-color: @result-close-readonly-bg;
             cursor: initial;
         }
         &.tinyselect-context-with-arrow .tinyselect-context-arrow {
-            background-color: lighten(#CFCFCF, 16%);
+            background-color: @result-arrow-readonly-bg;
         }
     }
     &:not(.tinyselect-context-readonly) {
         .tinyselect-result-item-link {
-            background-color: #ec4c64;
+            background-color: @result-close-bg;
             cursor: pointer;
             &:hover {
-                background-color: #e67c7c;
+                background-color: @result-close-hover-bg;
             }
         }
         &.tinyselect-context-with-arrow .tinyselect-context-arrow {
-            background-color: #CFCFCF;
+            background-color: @result-arrow-bg;
             cursor: pointer;
             &:hover {
-                background-color: darken(#CFCFCF, 10%);
+                background-color: @result-arrow-hover-bg;
             }
         }
     }
@@ -276,7 +292,7 @@
     margin: 0;
     padding: 0;
     border: none;
-    background-color: rgba(0, 0, 0, .1);
+    background-color: @mask-bg;
     z-index: 98;
     padding: 10px;
     .border-box();

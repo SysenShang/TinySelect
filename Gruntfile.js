@@ -50,7 +50,7 @@ module.exports = function(grunt) {
                 tasks: ['jshint', 'uglify']
             },
             css: {
-                files: ['src/*.less', 'examples/misc/less/*.less'],
+                files: ['src/less/*.less', 'examples/misc/less/*.less'],
                 tasks: ['less']
             }
         },
@@ -68,7 +68,7 @@ module.exports = function(grunt) {
             },
             dist: {
                 files: {
-                    'dist/tinyselect.css': 'src/tinyselect.less'
+                    'dist/tinyselect.css': 'src/less/tinyselect.less'
                 }
             }
         },

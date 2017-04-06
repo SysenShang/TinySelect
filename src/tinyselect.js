@@ -637,6 +637,9 @@
             // DOM上下文
             ts.context = $(context);
 
+            // 根据context的name属性创建隐藏域
+            createHiddenField(ts);
+
             // 渲染上下文DOM元素
             renderContext(ts);
 
@@ -961,6 +964,19 @@
      * 默认配置项，可以在加载时修改
      */
     TinySelect.defaults = defaultOption;
+
+    /**
+     * 如果元素有data-field-name属性，就创建一个同名的隐藏域
+     * @param {TinySelect} ts 表单实例
+     */
+    function createHiddenField(ts) {
+        var name = ts.context.attr('data-field-name');
+        if(!name) {
+            return;
+        }
+        var field = ts.field = $('<input type="hidden" name="' + name + '" />');
+        ts.context.append(field);
+    }
 
     /**
      * 渲染上下文DOM元素里面的DOM，创建结果容器和下拉指示元素

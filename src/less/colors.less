@@ -1,0 +1,59 @@
+// 这个文件用来定义组件颜色
+
+// 说明： bg 指背景色，fg指前景色, bd指边框颜色,sd指shadow颜色
+
+// 下拉框容器
+@con-bg: #FEFEFE;
+@con-bd: #ababab;
+@con-fg: #333;
+@con-sd: rgba(0, 0, 0, .2);
+
+// 头部
+@header-bd: #CCC;
+
+// 底部
+@footer-bd: #EEE;
+
+// 没有数据时提示文字
+@empty-fg: #888;
+
+// 数据项
+@item-fg: #444;
+@item-bg: @con-bg;
+@item-bd: transparent transparent #e8e8e8 transparent;
+@item-hover-fg: lighten(@item-selected-fg, 20%);
+@item-hover-bg: @item-bg;
+@item-hover-bd: #c3c3c3;
+@item-selected-fg: #1773B6;
+@item-selected-bg: @con-bg;
+@item-selected-bd: darken(#e8e8e8 , 10%);
+
+// 分组头
+@group-bg: #f7f7f7;
+@group-bd: #cfcfd0;
+
+// 结果框
+@result-arrow-bg: darken(@result-bg, 10%);
+@result-arrow-hover-bg: darken(@result-bg, 30%);
+
+// 多选结果
+@result-fg: #3D7399;
+@result-bg: #F0F0F0;
+@result-hover-fg: lighten(@result-fg, 20%);
+@result-hover-bg: darken(@result-bg, 10%);
+@result-close-bg: darken(@result-bg, 10%);
+@result-close-hover-bg: darken(@result-bg, 30%);
+
+// 只读模式
+@result-close-readonly-bg: @result-bg;
+@result-arrow-readonly-bg: darken(@result-bg, 5%);
+
+// 弹出模式的mask层
+@mask-bg: rgba(0, 0, 0, .1);
+
+// 表格布局
+@grid-bd: #1773B6;
+
+// 表格布局
+@table-bd: #EFEFEF;
+@table-hover-bg: #FAFAFA;
