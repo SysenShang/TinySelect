@@ -8,18 +8,21 @@ module.exports = function(grunt) {
         '\n * @依赖: jQuery 1.8.0及更高版本' +
         '\n * @浏览器支持: 不支持IE8及更低版本' +
         '\n * @QQ群: 187786345 (Javascript爱好者)' +
-        '\n */\n';
+        '\n */\n' +
+        '\n\n(function(win, $){' +
+        '\n"use strict";\n';
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         jshint: {
-            files: ['src/*.js'],
+            files: ['src/js/*.js'],
             options: {
                 globals: {
                     window: true,
-                    jQuery: true
+                    $: true,
+                    TinySelect: true
                 },
-                strict: true,
+               // strict: true,
                 // 浏览器环境 
                 browser: true,
                 // 写完一行必须加个分号
@@ -72,6 +75,22 @@ module.exports = function(grunt) {
                 }
             }
         },
+        concat: {
+            options: {
+                // 定义一个用于插入合并输出文件之间的字符
+                separator: '\n',
+                footer: '})(window, jQuery);'
+            },
+            core: {
+                options: {
+                    banner: headerinfo.replace('{edition}', 'core')
+                },
+                // 将要被合并的文件
+                src: ['src/tinyform.core.js', 'src/tinyform.data.js'],
+                // 合并后的JS文件的存放位置
+                dest: 'dist/<%= pkg.name %>.core.js'
+            }
+        },
         uglify: {
             options: {
                 banner: headerinfo,
@@ -79,7 +98,7 @@ module.exports = function(grunt) {
             },
             dist: {
                 files: {
-                    'dist/<%= pkg.name %>.js': ['src/<%= pkg.name %>.js']
+                    'dist/<%= pkg.name %>.js': ['src/js/<%= pkg.name %>.js']
                 }
             }
         },
@@ -96,11 +115,12 @@ module.exports = function(grunt) {
     });
 
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-less');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-copy');
 
-    grunt.registerTask('default', ['jshint', 'less', 'uglify', 'copy']);
+    grunt.registerTask('default', ['jshint', 'less', 'concat', 'uglify', 'copy']);
 
 };
